@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -30,15 +31,15 @@ public class MerchantServiceImpl implements MerchantService {
             return -1; // 用户不存在
         }
 
-        // 2. 只有 role=1 的用户才能创建商家
-        if (user.getRole() != 1) {
-            return -3; // 非商家角色，无法创建店铺
-        }
-
-        // 3. 一个用户只能开一家店
+        // 2. 一个用户只能开一家店
         Merchant existing = merchantMapper.selectByUserId(userId);
         if (existing != null) {
             return -2; // 店铺已存在
+        }
+
+        // 3. 如果当前用户不是商家，自动升级角色为商家
+        if (user.getRole() != 1) {
+            userMapper.adminUpdateRole(user.getId(), 1, LocalDateTime.now());
         }
 
         // 4. 初始化店铺信息

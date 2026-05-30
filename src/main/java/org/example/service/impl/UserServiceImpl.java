@@ -113,7 +113,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean UpdateBasicInfo(User user) {
-       return userMapper.updateBasicInfo(user)>0;
+        user.setUpdatedAt(LocalDateTime.now());
+        return userMapper.updateBasicInfo(user) > 0;
     }
 
     @Override
@@ -125,5 +126,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean UpdateAvatar(long userId, String avatar) {
         return userMapper.updateAvatar(userId,avatar,LocalDateTime.now())>0;
+    }
+
+    @Override
+    public User getUserByUsername(String username) {
+        // 注意：这里只查用户名，不是手机号，避免和登录逻辑混淆
+        return userMapper.findByUsername(username);
     }
 }

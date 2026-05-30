@@ -30,4 +30,7 @@ public interface UserService {
     //用户修改头像
     Boolean UpdateAvatar(long userId,String avatar);
 
+
+    User getUserByUsername(String username);
+
 }

@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>外卖系统</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>外卖系统 · 全后端驱动</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js">
+    </script>
     <style>
         * {
             margin: 0;
@@ -12,19 +13,18 @@
             box-sizing: border-box;
             font-family: 'Microsoft YaHei', sans-serif;
         }
-
         :root {
             --primary: #ff4d4f;
             --white: #fff;
             --gray: #f5f5f5;
             --border: #eee;
             --text: #333;
+            --text-secondary: #666;
         }
-
         body {
             background: #f9f9f9;
+            min-height: 100vh;
         }
-
         .login-container {
             display: flex;
             justify-content: center;
@@ -32,68 +32,73 @@
             height: 100vh;
             background: var(--gray);
         }
-
         .login-card {
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             background: var(--white);
-            padding: 30px;
+            padding: 35px 30px;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
-
         .login-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 28px;
         }
-
         .login-header h1 {
             color: var(--primary);
             margin-bottom: 8px;
+            font-size: 26px;
         }
-
+        .login-header p {
+            color: #999;
+            font-size: 14px;
+        }
         .role-tabs {
             display: flex;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
             border-bottom: 1px solid var(--border);
         }
-
         .role-tab {
             padding: 10px 15px;
             cursor: pointer;
             flex: 1;
             text-align: center;
+            font-size: 14px;
+            color: #999;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            user-select: none;
         }
-
         .role-tab.active {
             color: var(--primary);
-            border-bottom: 2px solid var(--primary);
+            border-bottom-color: var(--primary);
+            font-weight: bold;
         }
-
         .form-group {
             margin-bottom: 18px;
         }
-
         .form-label {
             display: block;
             margin-bottom: 6px;
             font-size: 14px;
             color: var(--text);
+            font-weight: 500;
         }
-
         .form-input {
             width: 100%;
-            padding: 12px;
+            padding: 11px 14px;
             border: 1px solid var(--border);
             border-radius: 6px;
             outline: none;
             font-size: 14px;
+            transition: border-color 0.2s;
+            background: #fafafa;
         }
-
         .form-input:focus {
             border-color: var(--primary);
+            background: #fff;
         }
-
         .login-btn {
             width: 100%;
             padding: 12px;
@@ -103,19 +108,27 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: opacity 0.2s;
         }
-
+        .login-btn:hover {
+            opacity: 0.9;
+        }
         .register-tip {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 16px;
             font-size: 14px;
+            color: #999;
         }
-
         .register-link {
             color: var(--primary);
             cursor: pointer;
+            font-weight: 500;
         }
-
+        .register-link:hover {
+            text-decoration: underline;
+        }
         .modal-mask {
             position: fixed;
             top: 0;
@@ -128,203 +141,322 @@
             align-items: center;
             z-index: 999;
         }
-
         .modal-box {
             background: white;
             width: 90%;
-            max-width: 420px;
-            padding: 25px;
+            max-width: 440px;
+            padding: 28px 25px;
             border-radius: 10px;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
         }
-
         .modal-close {
             text-align: right;
         }
-
         .close-btn {
             background: none;
             border: none;
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
+            color: #999;
+            line-height: 1;
         }
-
+        .close-btn:hover {
+            color: #333;
+        }
         .modal-title {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
             color: var(--primary);
+            font-size: 20px;
+            font-weight: bold;
         }
-
-        .main-container {}
-
         .navbar {
             background: white;
-            padding: 0 20px;
-            height: 55px;
+            padding: 0 24px;
+            height: 56px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
             position: sticky;
             top: 0;
             z-index: 10;
         }
-
         .logo {
             color: var(--primary);
-            font-size: 18px;
+            font-size: 19px;
             font-weight: bold;
+            letter-spacing: 1px;
         }
-
         .user-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
+            font-size: 14px;
         }
-
+        .user-info .role-badge {
+            background: #fff0f0;
+            color: var(--primary);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
         .logout-btn {
-            padding: 6px 12px;
-            border: 1px solid #ddd;
+            padding: 6px 14px;
+            border: 1px solid #e0e0e0;
             background: white;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
         }
-
+        .logout-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
         .content-wrapper {
             display: flex;
+            min-height: calc(100vh - 56px);
         }
-
         .sidebar {
             width: 200px;
             background: white;
-            height: calc(100vh - 55px);
             border-right: 1px solid var(--border);
-            padding-top: 20px;
+            padding-top: 16px;
+            flex-shrink: 0;
         }
-
         .menu-item {
-            padding: 12px 20px;
+            padding: 13px 20px;
             cursor: pointer;
-        }
-
-        .menu-item.active {
-            background: #fff0f0;
-            color: var(--primary);
-            border-left: 3px solid var(--primary);
-        }
-
-        .content {
-            flex: 1;
-            padding: 20px;
-        }
-
-        .info-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
-        }
-
-        .info-item {
-            margin-bottom: 12px;
+            font-size: 14px;
+            color: #555;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+            user-select: none;
             display: flex;
             align-items: center;
+            gap: 6px;
         }
-
+        .menu-item:hover {
+            background: #fafafa;
+            color: #333;
+        }
+        .menu-item.active {
+            background: #fff5f5;
+            color: var(--primary);
+            border-left-color: var(--primary);
+            font-weight: 600;
+        }
+        .menu-item.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .menu-section-title {
+            padding: 10px 20px 6px;
+            font-size: 11px;
+            color: #bbb;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: default;
+            pointer-events: none;
+        }
+        .content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+        .info-card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+            max-width: 600px;
+        }
+        .info-item {
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
         .info-label {
             width: 100px;
-            color: #666;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            font-weight: 500;
         }
-
+        .info-value {
+            color: var(--text);
+            word-break: break-all;
+        }
         .avatar {
             width: 80px;
             height: 80px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
+            border: 2px solid #f0f0f0;
         }
-
+        .readonly {
+            color: #999;
+            font-size: 13px;
+        }
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
+            gap: 16px;
         }
-
         .card {
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+            transition: transform 0.15s, box-shadow 0.15s;
         }
-
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+        }
         .card-img {
             width: 100%;
             height: 160px;
             object-fit: cover;
         }
-
         .card-body {
-            padding: 15px;
+            padding: 16px;
         }
-
         .card-title {
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 15px;
+            color: #333;
         }
-
+        .card-desc {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .card-price {
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 17px;
+        }
+        .card-price .original {
+            color: #bbb;
+            font-size: 13px;
+            text-decoration: line-through;
+            margin-left: 6px;
+            font-weight: normal;
+        }
         .btn {
-            padding: 8px 12px;
-            border-radius: 4px;
+            padding: 8px 16px;
+            border-radius: 6px;
             cursor: pointer;
             border: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            font-weight: 500;
         }
-
         .btn-primary {
             background: var(--primary);
             color: white;
         }
-
-        .cart-bar {
-            position: fixed;
-            bottom: 0;
-            left: 200px;
-            right: 0;
-            background: white;
-            padding: 15px 20px;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .btn-primary:hover {
+            opacity: 0.85;
         }
-
+        .btn-outline {
+            background: white;
+            border: 1px solid #ddd;
+            color: #555;
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        .edit-btn {
+            margin: 10px 0 16px;
+        }
         .cart-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-top: 15px;
+            margin-top: 16px;
         }
-
         .cart-item {
             display: flex;
             justify-content: space-between;
-            padding: 10px;
+            align-items: center;
+            padding: 14px 16px;
             background: white;
-            border-radius: 6px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            font-size: 14px;
         }
-
+        .cart-empty {
+            text-align: center;
+            color: #bbb;
+            padding: 40px 0;
+            font-size: 15px;
+        }
+        .cart-summary {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .cart-summary .total {
+            color: var(--primary);
+            font-size: 20px;
+        }
         .order-item {
             background: white;
-            padding: 15px;
+            padding: 16px 18px;
             border-radius: 8px;
             margin-bottom: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
-        .edit-btn {
-            margin: 10px 0;
+        .order-status {
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: #f0f0f0;
+            color: #888;
         }
-
-        .readonly {
+        .order-status.status-done {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+        .order-status.status-pending {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+        h3 {
+            margin-bottom: 6px;
+            color: #333;
+            font-size: 18px;
+        }
+        .loading-text {
+            text-align: center;
+            padding: 30px;
             color: #999;
         }
     </style>
@@ -335,7 +467,7 @@
     <div class="login-container" v-show="!isLogin">
         <div class="login-card">
             <div class="login-header">
-                <h1>外卖系统</h1>
+                <h1>🍔 外卖系统</h1>
                 <p>美味即刻送达</p>
             </div>
             <div class="role-tabs">
@@ -345,27 +477,25 @@
             </div>
             <form @submit.prevent="login">
                 <div class="form-group">
-                    <label class="form-label">用户名/手机号</label>
-                    <input v-model="loginForm.account" class="form-input" required>
+                    <label class="form-label">用户名 / 手机号</label>
+                    <input v-model="loginForm.account" class="form-input" placeholder="请输入账号" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">密码</label>
-                    <input v-model="loginForm.password" type="password" class="form-input" required>
+                    <input v-model="loginForm.password" type="password" class="form-input" placeholder="请输入密码" required>
                 </div>
-                <button type="submit" class="login-btn">登录</button>
+                <button type="submit" class="login-btn">登 录</button>
             </form>
             <div class="register-tip">
-                没有账号？<span class="register-link" @click="showRegister = true">注册</span>
+                没有账号？<span class="register-link" @click="openRegister">立即注册</span>
             </div>
         </div>
     </div>
 
     <!-- 注册弹窗 -->
-    <div class="modal-mask" v-if="showRegister">
+    <div class="modal-mask" v-if="showRegister" @click.self="showRegister = false">
         <div class="modal-box">
-            <div class="modal-close">
-                <button class="close-btn" @click="showRegister = false">×</button>
-            </div>
+            <div class="modal-close"><button class="close-btn" @click="showRegister = false">×</button></div>
             <div class="modal-title">账号注册</div>
             <div class="role-tabs">
                 <div class="role-tab" :class="{active: regRole === '0'}" @click="regRole = '0'">用户</div>
@@ -373,192 +503,190 @@
                 <div class="role-tab" :class="{active: regRole === '2'}" @click="regRole = '2'">骑手</div>
             </div>
             <form @submit.prevent="register">
-                <div class="form-group">
-                    <label class="form-label">用户名</label>
-                    <input v-model="regForm.username" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">手机号</label>
-                    <input v-model="regForm.phone" class="form-input" maxlength="11" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">密码</label>
-                    <input v-model="regForm.password" type="password" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">确认密码</label>
-                    <input v-model="regForm.confirmPwd" type="password" class="form-input" required>
-                </div>
-                <div v-if="regRole === '2'" class="form-group">
-                    <label class="form-label">身份证号</label>
-                    <input v-model="regForm.idCard" class="form-input">
-                </div>
-                <button class="login-btn">完成注册</button>
+                <div class="form-group"><label class="form-label">用户名</label><input v-model="regForm.username" class="form-input" placeholder="留空自动生成" ></div>
+                <div class="form-group"><label class="form-label">手机号</label><input v-model="regForm.phone" class="form-input" maxlength="11" placeholder="11位手机号" required></div>
+                <div class="form-group"><label class="form-label">密码</label><input v-model="regForm.password" type="password" class="form-input" required></div>
+                <div class="form-group"><label class="form-label">确认密码</label><input v-model="regForm.confirmPwd" type="password" class="form-input" required></div>
+                <button type="submit" class="login-btn">完成注册</button>
             </form>
         </div>
     </div>
 
     <!-- 主界面 -->
-    <div class="main-container" v-show="isLogin">
+    <div v-show="isLogin">
         <div class="navbar">
             <div class="logo">🍔 外卖系统</div>
             <div class="user-info">
-                <span>{{ userInfo.username }}</span>
-                <button class="logout-btn" @click="logout">退出</button>
+                <span class="role-badge">{{ ['用户','商家','骑手'][role] || '用户' }}</span>
+                <span>{{ userInfo.username || userInfo.account || '用户' }}</span>
+                <button class="logout-btn" @click="logout">退出登录</button>
             </div>
         </div>
-
         <div class="content-wrapper">
+            <!-- 侧边栏 -->
             <div class="sidebar">
+                <div class="menu-section-title">通用</div>
                 <div class="menu-item" :class="{active: page === 'info'}" @click="page='info'">个人信息</div>
 
-                <!-- 普通用户菜单 -->
-                <div v-if="role === 0">
-                    <div class="menu-item" @click="page='applyMerchant'">申请商家</div>
-                    <div class="menu-item" @click="page='applyRider'">申请骑手</div>
-                    <div class="menu-item" @click="page='shop'">店铺点餐</div>
-                    <div class="menu-item" @click="page='cart'">购物车</div>
-                    <div class="menu-item" @click="page='myorder'">我的订单</div>
-                </div>
-                <!-- 商家菜单 -->
-                <div v-if="role === 1">
-                    <div class="menu-item">商家管理</div>
-                    <div class="menu-item">商品管理</div>
-                    <div class="menu-item">订单管理</div>
-                </div>
-                <!-- 骑手菜单 -->
-                <div v-if="role === 2">
-                    <div class="menu-item">待接单</div>
-                    <div class="menu-item">我的配送</div>
-                </div>
+                <template v-if="role === 0">
+                    <div class="menu-section-title">用户功能</div>
+                    <div class="menu-item" :class="{active: page === 'applyMerchant'}" @click="page='applyMerchant'">申请商家</div>
+                    <div class="menu-item" :class="{active: page === 'applyRider'}" @click="page='applyRider'">申请骑手</div>
+                    <div class="menu-item" :class="{active: page === 'shop'}" @click="page='shop'; loadShopList()">店铺点餐</div>
+                    <div class="menu-item" :class="{active: page === 'cart', disabled: !currentShopId}" @click="openCartPage">
+                        购物车 <span v-if="cartTotalItems" style="background:#ff4d4f;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;">{{ cartTotalItems }}</span>
+                    </div>
+                    <div class="menu-item" :class="{active: page === 'myorder'}" @click="page='myorder'; loadMyOrders()">我的订单</div>
+                </template>
+
+                <template v-if="role === 1">
+                    <div class="menu-section-title">商家功能</div>
+                    <div class="menu-item" :class="{active: page === 'merchantInfo'}" @click="page='merchantInfo'">商家管理</div>
+                    <div class="menu-item" :class="{active: page === 'productManage'}" @click="page='productManage'">商品管理</div>
+                    <div class="menu-item" :class="{active: page === 'orderManage'}" @click="page='orderManage'">订单管理</div>
+                </template>
+
+                <template v-if="role === 2">
+                    <div class="menu-section-title">骑手功能</div>
+                    <div class="menu-item" :class="{active: page === 'pendingOrders'}" @click="page='pendingOrders'">待接单</div>
+                    <div class="menu-item" :class="{active: page === 'myDelivery'}" @click="page='myDelivery'">我的配送</div>
+                </template>
             </div>
 
+            <!-- 内容区 -->
             <div class="content">
-                <!-- 个人信息页面 -->
+                <!-- 个人信息 -->
                 <div v-show="page === 'info'">
                     <h3>个人信息</h3>
-                    <button class="btn btn-primary edit-btn" @click="isEditInfo = !isEditInfo">
-                        {{ isEditInfo ? '取消编辑' : '编辑资料' }}
-                    </button>
+                    <button class="btn btn-outline edit-btn" @click="isEditInfo = !isEditInfo">{{ isEditInfo ? '取消编辑' : '✏️ 编辑资料' }}</button>
                     <div class="info-card">
-                        <div style="text-align: center;">
-                            <img class="avatar" :src="userInfo.avatar || 'https://picsum.photos/100/100'">
+                        <div style="text-align:center;"><img class="avatar" :src="userInfo.avatar || 'https://picsum.photos/100/100'" alt="头像"></div>
+                        <div class="info-item"><span class="info-label">用户ID：</span><span class="info-value">{{ userInfo.id }}</span></div>
+                        <div class="info-item"><span class="info-label">用户名：</span><span class="info-value">{{ userInfo.username }}</span></div>
+                        <div class="info-item"><span class="info-label">手机号：</span>
+                            <span v-if="!isEditInfo" class="info-value">{{ userInfo.phone || userInfo.phoneNumber || '未设置' }}</span>
+                            <input v-else v-model="userInfo.phone" class="form-input" style="flex:1;" placeholder="输入新手机号">
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">用户名：</span>
-                            <span>{{ userInfo.username }}</span>
+                        <div class="info-item"><span class="info-label">身份：</span><span class="readonly">{{ ['用户','商家','骑手'][userInfo.role] || '未知' }}</span></div>
+                        <div class="info-item"><span class="info-label">头像URL：</span>
+                            <span v-if="!isEditInfo" class="info-value readonly">{{ userInfo.avatar || '未设置' }}</span>
+                            <input v-else v-model="userInfo.avatar" class="form-input" style="flex:1;" placeholder="输入头像URL">
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">手机号：</span>
-                            <span v-if="!isEditInfo">{{ userInfo.phone || '未填写' }}</span>
-                            <input v-else v-model="userInfo.phone" class="form-input">
-                        </div>
-                        <!-- 身份：只读，不可修改 -->
-                        <div class="info-item">
-                            <span class="info-label">当前身份：</span>
-                            <span class="readonly">{{ ['普通用户','商家','骑手'][userInfo.role] }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">性别：</span>
-                            <span v-if="!isEditInfo">{{ userInfo.sex || '未设置' }}</span>
-                            <input v-else v-model="userInfo.sex" class="form-input">
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">收货地址：</span>
-                            <span v-if="!isEditInfo">{{ userInfo.address || '未设置' }}</span>
-                            <input v-else v-model="userInfo.address" class="form-input">
-                        </div>
-
-                        <button v-if="isEditInfo" class="login-btn" style="margin-top: 15px" @click="saveUserInfo">保存修改</button>
+                        <button v-if="isEditInfo" class="login-btn" style="margin-top:16px;" @click="saveUserInfo">💾 保存修改</button>
                     </div>
                 </div>
 
                 <!-- 申请商家 -->
                 <div v-show="page === 'applyMerchant'">
-                    <h3>商家入驻申请</h3><br>
-                    <div class="info-card">
-                        <div class="form-group">
-                            <label class="form-label">店铺名称</label>
-                            <input v-model="merchantForm.shopName" class="form-input">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">店铺地址</label>
-                            <input v-model="merchantForm.shopAddress" class="form-input">
-                        </div>
-                        <button class="login-btn" @click="applyMerchant">提交入驻申请</button>
+                    <h3>商家入驻申请</h3>
+                    <div class="info-card" style="margin-top:12px;">
+                        <div class="form-group"><label class="form-label">店铺名称</label><input v-model="merchantForm.shopName" class="form-input" placeholder="请输入店铺名称"></div>
+                        <div class="form-group"><label class="form-label">店铺地址</label><input v-model="merchantForm.address" class="form-input" placeholder="请输入店铺地址"></div>
+                        <button class="login-btn" @click="applyMerchant">提交申请</button>
                     </div>
                 </div>
 
                 <!-- 申请骑手 -->
                 <div v-show="page === 'applyRider'">
-                    <h3>骑手身份认证</h3><br>
-                    <div class="info-card">
-                        <div class="form-group">
-                            <label class="form-label">真实姓名</label>
-                            <input v-model="riderForm.realName" class="form-input">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">身份证号</label>
-                            <input v-model="riderForm.idCard" class="form-input">
-                        </div>
+                    <h3>骑手认证</h3>
+                    <div class="info-card" style="margin-top:12px;">
+                        <div class="form-group"><label class="form-label">真实姓名</label><input v-model="riderForm.realName" class="form-input" placeholder="请输入真实姓名"></div>
+                        <div class="form-group"><label class="form-label">身份证号</label><input v-model="riderForm.idCard" class="form-input" maxlength="18" placeholder="请输入身份证号"></div>
                         <button class="login-btn" @click="applyRider">提交认证</button>
                     </div>
                 </div>
 
                 <!-- 店铺列表 -->
                 <div v-show="page === 'shop'">
-                    <h3>店铺列表</h3><br>
-                    <div class="grid">
+                    <h3>店铺列表</h3>
+                    <div v-if="shopLoading" class="loading-text">加载中...</div>
+                    <div class="grid" v-else>
                         <div class="card" v-for="s in shopList" :key="s.id">
-                            <img class="card-img" src="https://picsum.photos/300/160">
+                            <img class="card-img" :src="s.avatar || 'https://picsum.photos/300/160'" alt="店铺图片">
                             <div class="card-body">
                                 <div class="card-title">{{ s.shopName }}</div>
-                                <button class="btn btn-primary" @click="goShop(s.id, s.shopName)">进入点餐</button>
+                                <div class="card-desc" v-if="s.address">📍 {{ s.address }}</div>
+                                <button class="btn btn-primary" style="width:100%;margin-top:8px;" @click="goShop(s.id, s.shopName)">进入点餐</button>
                             </div>
                         </div>
                     </div>
+                    <div v-if="!shopLoading && !shopList.length" style="text-align:center;color:#bbb;padding:40px;">暂无店铺</div>
                 </div>
 
-                <!-- 点餐页面 -->
+                <!-- 商品列表 -->
                 <div v-show="page === 'goods'">
-                    <h3>{{ currentShopName }}</h3><br>
-                    <div class="grid">
+                    <h3>{{ currentShopName }} - 商品列表</h3>
+                    <button class="btn btn-outline edit-btn" @click="page='shop'; loadShopList()">← 返回店铺列表</button>
+                    <div v-if="goodsLoading" class="loading-text">加载中...</div>
+                    <div class="grid" v-else>
                         <div class="card" v-for="g in goodsList" :key="g.id">
-                            <img class="card-img" src="https://picsum.photos/300/160">
+                            <img class="card-img" :src="g.image || 'https://picsum.photos/300/160'" alt="商品图片">
                             <div class="card-body">
-                                <div>{{ g.name }}</div>
-                                <div>¥ {{ g.price }}</div>
-                                <button class="btn btn-primary" @click="addCart(g)">加入购物车</button>
+                                <div class="card-title">{{ g.name }}</div>
+                                <div class="card-desc" v-if="g.description">{{ g.description }}</div>
+                                <div>
+                                    <span class="card-price">¥ {{ g.price }}</span>
+                                    <span class="original" v-if="g.originalPrice && g.originalPrice > g.price">¥ {{ g.originalPrice }}</span>
+                                </div>
+                                <div style="font-size:12px;color:#999;margin-top:4px;">库存：{{ g.stock }} | 已售：{{ g.sales || 0 }}</div>
+                                <button class="btn btn-primary" style="width:100%;margin-top:10px;" @click="addToCart(g)">🛒 加入购物车</button>
                             </div>
                         </div>
                     </div>
-                    <div class="cart-bar" v-if="cartList.length">
-                        <div>购物车 {{ cartList.length }} 件商品</div>
-                        <button class="btn btn-primary" @click="page='cart'">去结算</button>
-                    </div>
+                    <div v-if="!goodsLoading && !goodsList.length" style="text-align:center;color:#bbb;padding:40px;">该店铺暂无商品</div>
                 </div>
 
                 <!-- 购物车 -->
                 <div v-show="page === 'cart'">
-                    <h3>购物车</h3>
-                    <div class="cart-list" v-if="cartList.length">
-                        <div class="cart-item" v-for="(item,i) in cartList" :key="i">
-                            <div>{{ item.name }}</div>
-                            <div>¥ {{ item.price }}</div>
+                    <h3>🛒 购物车 ({{ currentShopName || '未选择店铺' }})</h3>
+                    <div v-if="!currentShopId" style="text-align:center;color:#999;padding:30px;">请先进入店铺点餐</div>
+                    <template v-else>
+                        <div v-if="cartLoading" class="loading-text">加载中...</div>
+                        <div class="cart-list" v-else-if="cartList.length">
+                            <div class="cart-item" v-for="item in cartList" :key="item.id">
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <span>{{ item.product?.name || '商品' }}</span>
+                                    <span style="color:#999;">x{{ item.quantity }}</span>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <span style="color:var(--primary);font-weight:600;">¥ {{ ((item.product?.price || 0) * item.quantity).toFixed(2) }}</span>
+                                    <button class="btn btn-outline btn-sm" @click="removeCartItem(item.id)">×</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div v-else style="margin-top:20px;">购物车暂无商品</div>
-                    <button class="btn btn-primary" style="margin-top:20px" @click="submitOrder" v-if="cartList.length">结算订单</button>
+                        <div v-else-if="!cartLoading" class="cart-empty">购物车空空如也</div>
+                        <div v-if="cartList.length" class="cart-summary">
+                            <span>合计：<span class="total">¥ {{ cartTotal.toFixed(2) }}</span></span>
+                            <button class="btn btn-primary" @click="submitOrder">📦 结算订单</button>
+                        </div>
+                    </template>
                 </div>
 
                 <!-- 我的订单 -->
                 <div v-show="page === 'myorder'">
                     <h3>我的订单</h3>
-                    <div class="order-item" v-for="(o,i) in orderList" :key="i">
-                        订单{{ i+1 }} | 实付金额：¥{{ o.total }}
+                    <div v-if="orderLoading" class="loading-text">加载中...</div>
+                    <div class="order-item" v-for="o in orderList" :key="o.id">
+                        <div>
+                            <div style="font-weight:500;">订单 #{{ o.id }}</div>
+                            <div style="font-size:12px;color:#999;">{{ o.createdAt || '' }}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="color:var(--primary);font-weight:600;">¥ {{ o.totalAmount || 0 }}</div>
+                            <span class="order-status" :class="o.status === 4 ? 'status-done' : 'status-pending'">
+                                    {{ ['待支付','已支付','已接单','配送中','已完成','已取消'][o.status] || '未知' }}
+                                </span>
+                        </div>
                     </div>
-                    <div v-if="orderList.length === 0" style="margin-top:20px;">暂无订单记录</div>
+                    <div v-if="!orderLoading && !orderList.length" style="text-align:center;color:#bbb;padding:40px;">暂无订单</div>
                 </div>
+
+                <!-- 商家/骑手占位页面 -->
+                <div v-show="page === 'merchantInfo'"><h3>商家管理</h3><div class="info-card" style="margin-top:12px;"><p style="color:#999;">商家信息管理功能（待完善）</p></div></div>
+                <div v-show="page === 'productManage'"><h3>商品管理</h3><div class="info-card" style="margin-top:12px;"><p style="color:#999;">商品上下架管理功能（待完善）</p></div></div>
+                <div v-show="page === 'orderManage'"><h3>订单管理</h3><div class="info-card" style="margin-top:12px;"><p style="color:#999;">订单处理功能（待完善）</p></div></div>
+                <div v-show="page === 'pendingOrders'"><h3>待接订单</h3><div class="info-card" style="margin-top:12px;"><p style="color:#999;">待接单列表（待完善）</p></div></div>
+                <div v-show="page === 'myDelivery'"><h3>我的配送</h3><div class="info-card" style="margin-top:12px;"><p style="color:#999;">配送记录（待完善）</p></div></div>
             </div>
         </div>
     </div>
@@ -566,156 +694,373 @@
 
 <script>
     const { createApp } = Vue;
+    const BASE_URL = 'http://localhost:8080/takeout';
+
     createApp({
         data() {
             return {
                 isLogin: false,
-                showRegister: false,
+                token: '',
                 loginRole: '0',
-                regRole: '0',
+                showRegister: false,
                 page: 'info',
                 role: 0,
-                isEditInfo: false, // 个人资料编辑状态
+                isEditInfo: false,
+
                 userInfo: {
+                    id: '',
+                    account: '',
                     username: '',
                     phone: '',
+                    phoneNumber: '',
                     role: 0,
                     avatar: '',
-                    address: '',
-                    sex: ''
+                    status: 1,
+                    createdAt: '',
+                    updatedAt: ''
                 },
+
                 loginForm: { account: '', password: '' },
-                regForm: { username: '', phone: '', password: '', confirmPwd: '', idCard: '' },
-                merchantForm: { shopName: '', shopAddress: '' },
+                regForm: { username: '', phone: '', password: '', confirmPwd: '' },
+                regRole: '0',
+                merchantForm: { shopName: '', address: '' },
                 riderForm: { realName: '', idCard: '' },
-                shopList: [{id:1, shopName:"美食餐厅"},{id:2, shopName:"快餐便当"}],
+
+                shopList: [],
+                shopLoading: false,
+                goodsList: [],
+                goodsLoading: false,
                 currentShopId: null,
                 currentShopName: '',
-                goodsList: [{id:1, name:"招牌炒饭", price:18},{id:2, name:"红烧牛肉面", price:22}],
+
                 cartList: [],
-                orderList: []
+                cartLoading: false,
+                orderList: [],
+                orderLoading: false,
+            }
+        },
+        computed: {
+            cartTotal() {
+                return this.cartList.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
+            },
+            cartTotalItems() {
+                return this.cartList.reduce((s, i) => s + i.quantity, 0);
+            }
+        },
+        created() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('userInfo');
+            if (token && user) {
+                try {
+                    const parsedUser = JSON.parse(user);
+                    this.token = token;
+                    this.userInfo = parsedUser;
+                    this.role = parsedUser.role !== undefined ? parsedUser.role : 0;
+                    this.isLogin = true;
+                    if (this.role === 0) { this.page = 'shop'; this.loadShopList(); }
+                    else if (this.role === 1) this.page = 'merchantInfo';
+                    else if (this.role === 2) this.page = 'pendingOrders';
+                } catch (e) {
+                    this.clearStorage();
+                }
             }
         },
         methods: {
-            // 登录 + 身份拦截校验
-            async login() {
-                if (!this.loginForm.account || !this.loginForm.password) {
-                    alert("请输入账号和密码");
-                    return;
+            clearStorage() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('userInfo');
+            },
+            getHeaders() {
+                return {
+                    "Content-Type": "application/json",
+                    "token": this.token
+                };
+            },
+            async api(url, options = {}) {
+                try {
+                    const res = await fetch(BASE_URL + url, options);
+                    const data = await res.json();
+                    return data;
+                } catch (e) {
+                    console.error("请求失败:", e);
+                    return { code: -1, msg: "网络错误，请稍后重试" };
                 }
-                const res = await fetch("http://localhost:8080/takeout/user/login", {
+            },
+            openRegister() {
+                this.regRole = '0';
+                this.regForm = { username: '', phone: '', password: '', confirmPwd: '' };
+                this.showRegister = true;
+            },
+
+            // 登录
+            async login() {
+                if (!this.loginForm.account || !this.loginForm.password) return alert("请输入账号和密码");
+                const result = await this.api('/user/login', {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        account: this.loginForm.account,
-                        password: this.loginForm.password,
-                        role: this.loginRole
-                    })
+                    body: JSON.stringify({ account: this.loginForm.account, password: this.loginForm.password })
                 });
-                const result = await res.json();
-                if (result.code !== 200) {
-                    alert(result.msg);
-                    return;
-                }
-
-                // 身份拦截规则
-                const userRealRole = result.data.role;
-                const selectRole = Number(this.loginRole);
-                let roleCheck = true;
-
-                // 1. 普通用户(0) 不能登录商家端(1)
-                if (userRealRole === 0 && selectRole === 1) {
-                    alert("您是普通用户，无法登录商家端！");
-                    roleCheck = false;
-                }
-                // 2. 骑手(2) 不能登录商家端(1)
-                if (userRealRole === 2 && selectRole === 1) {
-                    alert("您是骑手，无法登录商家端！");
-                    roleCheck = false;
-                }
-                // 3. 身份不匹配整体拦截
-                if (userRealRole !== selectRole) {
-                    alert("选择身份与账号实际身份不一致，登录失败！");
-                    roleCheck = false;
-                }
-
-                if (!roleCheck) return;
-
-                // 登录成功
-                alert("登录成功");
+                if (result.code !== 200) return alert(result.msg || "登录失败");
+                const data = result.data;
+                this.token = data.token;
+                // 兼容后端可能返回 phone 或 phoneNumber
+                const phoneField = data.phone || data.phoneNumber || '';
+                this.userInfo = {
+                    id: data.userId,
+                    account: this.loginForm.account,
+                    username: data.username,
+                    phone: phoneField,
+                    phoneNumber: phoneField,
+                    role: data.role,
+                    avatar: data.avatar || '',
+                };
+                this.role = data.role;
                 this.isLogin = true;
-                this.userInfo = result.data;
-                this.role = userRealRole;
+                localStorage.setItem('token', this.token);
+                localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
+                if (this.role === 0) { this.page = 'shop'; this.loadShopList(); }
+                else if (this.role === 1) this.page = 'merchantInfo';
+                else if (this.role === 2) this.page = 'pendingOrders';
             },
 
             // 注册
             async register() {
-                if (!/^1[3-9]\d{9}$/.test(this.regForm.phone)) {
-                    alert("请输入合法的11位手机号");
-                    return;
-                }
-                if (this.regForm.password !== this.regForm.confirmPwd) {
-                    alert("两次输入密码不一致");
-                    return;
-                }
-                const res = await fetch("http://localhost:8080/takeout/user/register", {
+                if (this.regForm.password !== this.regForm.confirmPwd) return alert("两次密码不一致");
+                const payload = {
+                    username: this.regForm.username || undefined,
+                    phone: this.regForm.phone,   // 后端接收 phone 并通过 @JsonProperty 映射到 phoneNumber
+                    password: this.regForm.password,
+                    role: Number(this.regRole)
+                };
+                const result = await this.api('/user/register', {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        username: this.regForm.username,
-                        phone: this.regForm.phone,
-                        password: this.regForm.password,
-                        role: this.regRole,
-                        idCard: this.regForm.idCard
-                    })
+                    body: JSON.stringify(payload)
                 });
-                const result = await res.json();
+                alert(result.msg || "注册结果");
                 if (result.code === 200) {
-                    alert("注册成功，请登录");
                     this.showRegister = false;
-                    this.regForm = { username: '', phone: '', password: '', confirmPwd: '', idCard: '' };
-                } else {
-                    alert(result.msg);
+                    this.loginForm.account = this.regForm.phone;
+                    this.loginForm.password = '';
                 }
             },
 
-            // 保存个人资料修改
-            saveUserInfo() {
-                this.isEditInfo = false;
-                alert("资料修改成功");
-                // 此处可对接后端 /takeout/user/updateInfo 接口提交数据
+            // 保存个人信息
+            async saveUserInfo() {
+                const payload = {
+                    id: this.userInfo.id,
+                    phone: this.userInfo.phone,
+                    avatar: this.userInfo.avatar,
+                    username: this.userInfo.username
+                };
+                const result = await this.api('/user/updateInfo', {
+                    method: "POST",
+                    headers: this.getHeaders(),
+                    body: JSON.stringify(payload)
+                });
+                alert(result.msg || "保存结果");
+                if (result.code === 200) {
+                    this.isEditInfo = false;
+                    this.userInfo.phoneNumber = this.userInfo.phone;
+                    localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
+                }
             },
 
             logout() {
+                this.clearStorage();
                 this.isLogin = false;
-                this.page = 'info';
-                this.loginForm = { account: '', password: '' };
-            },
-
-            applyMerchant() {
-                alert("商家申请已提交，等待审核！");
-                this.page = "info";
-            },
-            applyRider() {
-                alert("骑手认证已提交，等待审核！");
-                this.page = "info";
-            },
-
-            goShop(id, name) {
-                this.currentShopId = id;
-                this.currentShopName = name;
-                this.page = "goods";
-            },
-            addCart(goods) {
-                this.cartList.push(goods);
-                alert("已加入购物车");
-            },
-            submitOrder() {
-                const total = this.cartList.reduce((sum, item) => sum + item.price, 0);
-                this.orderList.push({ total });
+                this.token = '';
                 this.cartList = [];
-                alert("下单成功！");
-                this.page = "myorder";
+                this.orderList = [];
+            },
+
+            // 加载店铺列表
+            async loadShopList() {
+                this.shopLoading = true;
+                const result = await this.api('/merchant/validList');
+                this.shopLoading = false;
+                if (result.code === 200) {
+                    this.shopList = result.data || [];
+                } else {
+                    this.shopList = [];
+                    console.error(result.msg);
+                }
+            },
+
+            // 进入店铺
+            async goShop(merchantId, shopName) {
+                this.currentShopId = merchantId;
+                this.currentShopName = shopName;
+                this.page = 'goods';
+                this.goodsLoading = true;
+                const result = await this.api(`/product/list/${merchantId}`);
+                this.goodsLoading = false;
+                if (result.code === 200) {
+                    this.goodsList = result.data || [];
+                } else {
+                    this.goodsList = [];
+                    alert(result.msg || "获取商品失败");
+                }
+                this.loadCart();
+            },
+
+            // 加入购物车
+            async addToCart(product) {
+                if (!this.currentShopId) return alert("请先进入店铺");
+                const result = await this.api('/cart/add', {
+                    method: "POST",
+                    headers: this.getHeaders(),
+                    body: JSON.stringify({
+                        merchantId: this.currentShopId,
+                        productId: product.id,
+                        quantity: 1
+                    })
+                });
+                if (result.code === 200) {
+                    alert("已加入购物车");
+                    this.loadCart();
+                } else {
+                    alert(result.msg || "添加失败");
+                }
+            },
+
+            // 加载当前店铺购物车
+            async loadCart() {
+                if (!this.currentShopId) return;
+                this.cartLoading = true;
+                const result = await this.api(`/cart/list/${this.currentShopId}`, {
+                    headers: this.getHeaders()
+                });
+                this.cartLoading = false;
+                if (result.code === 200) {
+                    this.cartList = result.data || [];
+                } else {
+                    this.cartList = [];
+                }
+            },
+
+            // 删除购物车项
+            async removeCartItem(cartId) {
+                if (!confirm("确定移除该商品吗？")) return;
+                const result = await this.api(`/cart/delete/${cartId}`, {
+                    method: "POST",
+                    headers: this.getHeaders()
+                });
+                if (result.code === 200) {
+                    this.loadCart();
+                } else {
+                    alert(result.msg || "删除失败");
+                }
+            },
+
+            openCartPage() {
+                if (!this.currentShopId) {
+                    alert("请先进入店铺点餐");
+                    return;
+                }
+                this.page = 'cart';
+                this.loadCart();
+            },
+
+            // 提交订单
+            async submitOrder() {
+                if (!this.cartList.length) return alert("购物车为空");
+                if (!this.currentShopId) return alert("店铺信息丢失");
+                const totalAmount = this.cartTotal;
+                // 创建订单
+                const orderRes = await this.api('/order/create', {
+                    method: "POST",
+                    headers: this.getHeaders(),
+                    body: JSON.stringify({
+                        merchantId: this.currentShopId,
+                        totalAmount: totalAmount,
+                        payAmount: totalAmount,
+                        discountAmount: 0,
+                        address: this.userInfo.address || '默认地址',
+                        phone: this.userInfo.phone || '',
+                        receiver: this.userInfo.username || ''
+                    })
+                });
+                if (orderRes.code !== 200) return alert(orderRes.msg || "下单失败");
+                const orderId = orderRes.data;
+                // 添加订单项
+                for (let item of this.cartList) {
+                    await this.api('/orderItem/add', {
+                        method: "POST",
+                        headers: this.getHeaders(),
+                        body: JSON.stringify({
+                            orderId: orderId,
+                            productId: item.productId,
+                            productName: item.product?.name || '',
+                            productPrice: item.product?.price || 0,
+                            quantity: item.quantity,
+                            totalPrice: (item.product?.price || 0) * item.quantity
+                        })
+                    });
+                }
+                // 清空购物车
+                await this.api(`/cart/clear/${this.currentShopId}`, {
+                    method: "POST",
+                    headers: this.getHeaders()
+                });
+                alert("下单成功！订单号：" + orderId);
+                this.cartList = [];
+                this.page = 'myorder';
+                this.loadMyOrders();
+            },
+
+            // 加载我的订单
+            async loadMyOrders() {
+                this.orderLoading = true;
+                const result = await this.api('/order/myOrders', {
+                    headers: this.getHeaders()
+                });
+                this.orderLoading = false;
+                if (result.code === 200) {
+                    this.orderList = result.data || [];
+                } else {
+                    this.orderList = [];
+                }
+            },
+
+            // 申请商家
+            async applyMerchant() {
+                if (!this.merchantForm.shopName || !this.merchantForm.address) return alert("请填写完整信息");
+                const result = await this.api('/merchant/create', {
+                    method: "POST",
+                    headers: this.getHeaders(),
+                    body: JSON.stringify(this.merchantForm)
+                });
+                alert(result.msg || "申请结果");
+                if (result.code === 200) {
+                    // 商家入驻成功后，角色自动变为商家，更新本地信息
+                    this.userInfo.role = 1;
+                    this.role = 1;
+                    localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
+                    this.merchantForm = { shopName: '', address: '' };
+                    alert("入驻成功，即将跳转商家后台");
+                    this.page = 'merchantInfo';
+                }
+            },
+
+            // 申请骑手
+            async applyRider() {
+                if (!this.riderForm.realName || !this.riderForm.idCard) return alert("请填写完整信息");
+                const result = await this.api('/rider/apply', {
+                    method: "POST",
+                    headers: this.getHeaders(),
+                    body: JSON.stringify(this.riderForm)
+                });
+                alert(result.msg || "申请结果");
+                if (result.code === 200) {
+                    // 骑手入驻成功后角色自动变为骑手
+                    this.userInfo.role = 2;
+                    this.role = 2;
+                    localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
+                    this.riderForm = { realName: '', idCard: '' };
+                    alert("骑手认证成功，跳转骑手页面");
+                    this.page = 'pendingOrders';
+                }
             }
         }
     }).mount('#app');

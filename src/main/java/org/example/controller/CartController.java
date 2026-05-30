@@ -1,13 +1,14 @@
 package org.example.controller;
 
+import jakarta.annotation.Resource;
+import org.example.Utils.JwtUtils;
 import org.example.domain.Cart;
+import org.example.domain.Result;
 import org.example.domain.User;
 import org.example.service.CartService;
-import org.example.domain.Result;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
@@ -15,14 +16,28 @@ import java.util.List;
 @CrossOrigin
 public class CartController {
 
-    @Autowired
+    @Resource
     private CartService cartService;
+
+    @Resource
+    private UserService userService;
+
+    @Resource
+    private JwtUtils jwtUtils;
 
     // 添加购物车
     @PostMapping("/add")
-    public Result add(@RequestBody Cart cart, HttpSession session) {
-        User user = (User) session.getAttribute("loginUser");
-        if (user == null) return Result.error("请先登录");
+    public Result add(@RequestBody Cart cart, @RequestHeader("token") String token) {
+        if (!jwtUtils.validateToken(token)) {
+            return Result.error("请先登录");
+        }
+
+        String username = jwtUtils.getUsernameFromToken(token);
+        User user = userService.getUserByUsername(username);   // 改用只查不校验密码的方法
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+
         cart.setUserId(user.getId());
         cartService.addCart(cart);
         return Result.success("加入购物车成功");
@@ -30,8 +45,17 @@ public class CartController {
 
     // 获取购物车列表（带商品）
     @GetMapping("/list/{merchantId}")
-    public Result list(@PathVariable Integer merchantId, HttpSession session) {
-        User user = (User) session.getAttribute("loginUser");
+    public Result list(@PathVariable Integer merchantId, @RequestHeader("token") String token) {
+        if (!jwtUtils.validateToken(token)) {
+            return Result.error("请先登录");
+        }
+
+        String username = jwtUtils.getUsernameFromToken(token);
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+
         List<Cart> list = cartService.getCartWithProduct(user.getId(), merchantId);
         return Result.success(list);
     }
@@ -52,8 +76,17 @@ public class CartController {
 
     // 清空
     @PostMapping("/clear/{merchantId}")
-    public Result clear(@PathVariable Integer merchantId, HttpSession session) {
-        User user = (User) session.getAttribute("loginUser");
+    public Result clear(@PathVariable Integer merchantId, @RequestHeader("token") String token) {
+        if (!jwtUtils.validateToken(token)) {
+            return Result.error("请先登录");
+        }
+
+        String username = jwtUtils.getUsernameFromToken(token);
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+
         cartService.clearCart(user.getId(), merchantId);
         return Result.success("清空成功");
     }

@@ -1,13 +1,16 @@
 package org.example.service.impl;
 
 import org.example.domain.Rider;
+import org.example.domain.User;
 import org.example.mapper.RiderMapper;
+import org.example.mapper.UserMapper;
 import org.example.service.RiderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -16,14 +19,27 @@ public class RiderServiceImpl implements RiderService {
     @Autowired
     private RiderMapper riderMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Override
     @Transactional
     public int addRider(Rider rider) {
-        // 初始化默认值：默认离线、初始评分5.0
+        Rider exist = riderMapper.selectByUserId(rider.getUserId());
+        if (exist != null) return -2;
+
+        User user = userMapper.findById(rider.getUserId().longValue());
+        if (user == null) return -1;
+
+        if (user.getRole() != 2) {
+            userMapper.adminUpdateRole(user.getId(), 2, LocalDateTime.now());
+        }
+
         rider.setStatus(0);
         rider.setRating(new BigDecimal("5.0"));
         return riderMapper.insert(rider);
     }
+
 
     @Override
     public Rider getRiderById(Integer id) {

@@ -1,17 +1,16 @@
 package org.example.controller;
 
-
+import jakarta.annotation.Resource;
+import org.example.Utils.JwtUtils;
 import org.example.domain.Merchant;
 import org.example.domain.Product;
+import org.example.domain.Result;
 import org.example.domain.User;
 import org.example.service.MerchantService;
 import org.example.service.ProductService;
-import org.example.domain.Result;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
-
-import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
@@ -19,18 +18,29 @@ import java.util.List;
 @CrossOrigin
 public class ProductController {
 
-    @Autowired
+    @Resource
     private ProductService productService;
 
-    @Autowired
+    @Resource
     private MerchantService merchantService;
+
+    @Resource
+    private UserService userService;
+
+    @Resource
+    private JwtUtils jwtUtils;
 
     // ====================== 商家发布商品 ======================
     @PostMapping("/add")
-    public Result addProduct(@RequestBody Product product, HttpSession session) {
-        User user = (User) session.getAttribute("loginUser");
-        if (user == null) {
+    public Result addProduct(@RequestBody Product product, @RequestHeader("token") String token) {
+        if (!jwtUtils.validateToken(token)) {
             return Result.error("请先登录");
+        }
+
+        String username = jwtUtils.getUsernameFromToken(token);
+        User user = userService.getUserByUsername(username);   // 只查不验密
+        if (user == null) {
+            return Result.error("用户不存在");
         }
 
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
@@ -74,10 +84,26 @@ public class ProductController {
     public Result updateStatus(
             @RequestParam Integer id,
             @RequestParam Integer status,
-            HttpSession session) {
-        User user = (User) session.getAttribute("loginUser");
+            @RequestHeader("token") String token) {
+        if (!jwtUtils.validateToken(token)) {
+            return Result.error("请先登录");
+        }
+
+        String username = jwtUtils.getUsernameFromToken(token);
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
+        if (merchant == null) {
+            return Result.error("你还不是商家");
+        }
+
         Product product = productService.getById(id);
+        if (product == null) {
+            return Result.error("商品不存在");
+        }
 
         if (!product.getMerchantId().equals(merchant.getId())) {
             return Result.error("无权限操作");
@@ -89,10 +115,26 @@ public class ProductController {
 
     // ====================== 删除商品 ======================
     @PostMapping("/delete/{id}")
-    public Result deleteProduct(@PathVariable Integer id, HttpSession session) {
-        User user = (User) session.getAttribute("loginUser");
+    public Result deleteProduct(@PathVariable Integer id, @RequestHeader("token") String token) {
+        if (!jwtUtils.validateToken(token)) {
+            return Result.error("请先登录");
+        }
+
+        String username = jwtUtils.getUsernameFromToken(token);
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
+        if (merchant == null) {
+            return Result.error("你还不是商家");
+        }
+
         Product product = productService.getById(id);
+        if (product == null) {
+            return Result.error("商品不存在");
+        }
 
         if (!product.getMerchantId().equals(merchant.getId())) {
             return Result.error("无权限");
