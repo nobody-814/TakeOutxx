@@ -41,6 +41,8 @@ public class UserController {
         map.put("role", loginUser.getRole());
         map.put("username", loginUser.getUsername());
         map.put("userId", loginUser.getId());
+        map.put("phone", loginUser.getPhoneNumber());
+        map.put("address", loginUser.getAddress());
 
         return Result.success(map);
     }
@@ -57,6 +59,22 @@ public class UserController {
         return Result.success("注册成功");
     }
 
+    // 获取个人信息（从 Token 中获取当前用户）
+    @GetMapping("/profile")
+    public Result<User> profile(@RequestHeader("token") String token) {
+        if (!jwtUtils.validateToken(token)) {
+            return Result.error("请先登录");
+        }
+        String username = jwtUtils.getUsernameFromToken(token);
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            return Result.error("用户不存在");
+        }
+        // 不返回密码
+        user.setPassword(null);
+        return Result.success(user);
+    }
+
     // 修改个人信息（从 Token 中获取当前用户，只允许修改自己的信息）
     @PostMapping("/updateInfo")
     public Result updateInfo(@RequestBody User user, @RequestHeader("token") String token) {
@@ -70,11 +88,22 @@ public class UserController {
             return Result.error("用户不存在");
         }
 
-        // 只允许修改手机号、头像、用户名（可根据需求调整）
-        currentUser.setPhoneNumber(user.getPhoneNumber());
-        currentUser.setAvatar(user.getAvatar());
-        if (user.getUsername() != null) {
+        // 验证手机号格式（11位）
+        if (user.getPhoneNumber() != null && !user.getPhoneNumber().trim().isEmpty()) {
+            if (!user.getPhoneNumber().matches("^1[3-9]\\d{9}$")) {
+                return Result.error("手机号必须为11位有效号码");
+            }
+            currentUser.setPhoneNumber(user.getPhoneNumber());
+        }
+
+        if (user.getAvatar() != null) {
+            currentUser.setAvatar(user.getAvatar());
+        }
+        if (user.getUsername() != null && !user.getUsername().trim().isEmpty()) {
             currentUser.setUsername(user.getUsername());
+        }
+        if (user.getAddress() != null) {
+            currentUser.setAddress(user.getAddress());
         }
 
         boolean updated = userService.UpdateBasicInfo(currentUser);
@@ -98,6 +127,10 @@ public class UserController {
             @RequestParam String oldPhoneNum,
             @RequestParam String newPhoneNum) {
 
+        if (!newPhoneNum.matches("^1[3-9]\\d{9}$")) {
+            return Result.error("手机号必须为11位有效号码");
+        }
+
         if (userService.IsPhoneNumberExists(newPhoneNum)) {
             return Result.error("该手机号已被使用");
         }
@@ -107,7 +140,7 @@ public class UserController {
                 : Result.error("手机号修改失败");
     }
 
-    // 修改头像（建议增加 Token 校验，防止越权）
+    // 修改头像
     @PostMapping("/updateAvatar")
     public Result updateAvatar(
             @RequestParam long userId,

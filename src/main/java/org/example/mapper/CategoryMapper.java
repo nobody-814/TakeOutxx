@@ -10,4 +10,7 @@ public interface CategoryMapper {
 
     @Select("SELECT * FROM category WHERE merchant_id=#{merchantId} ORDER BY sort")
     List<Category> selectByMerchantId(Integer merchantId);
+
+    @Select("SELECT COUNT(*) FROM category WHERE merchant_id=#{merchantId} AND name=#{name}")
+    int countByMerchantAndName(@Param("merchantId") Integer merchantId, @Param("name") String name);
 }

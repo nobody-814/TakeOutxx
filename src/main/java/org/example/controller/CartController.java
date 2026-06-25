@@ -67,12 +67,14 @@ public class CartController {
         return Result.success("更新成功");
     }
 
+
     // 删除
     @PostMapping("/delete/{id}")
     public Result delete(@PathVariable Integer id) {
         cartService.deleteCart(id);
         return Result.success("删除成功");
     }
+
 
     // 清空
     @PostMapping("/clear/{merchantId}")

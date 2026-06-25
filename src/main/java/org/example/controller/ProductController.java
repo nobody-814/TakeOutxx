@@ -30,116 +30,70 @@ public class ProductController {
     @Resource
     private JwtUtils jwtUtils;
 
-    // ====================== 商家发布商品 ======================
     @PostMapping("/add")
     public Result addProduct(@RequestBody Product product, @RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) {
-            return Result.error("请先登录");
-        }
-
+        if (!jwtUtils.validateToken(token)) return Result.error("请先登录");
         String username = jwtUtils.getUsernameFromToken(token);
-        User user = userService.getUserByUsername(username);   // 只查不验密
-        if (user == null) {
-            return Result.error("用户不存在");
-        }
-
+        User user = userService.getUserByUsername(username);
+        if (user == null || user.getId() == null) return Result.error("用户不存在");
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
-        if (merchant == null) {
-            return Result.error("你还不是商家");
-        }
-
+        if (merchant == null) return Result.error("你还没有开通店铺，请先入驻");
+        if (product.getName() == null || product.getName().trim().isEmpty()) return Result.error("商品名称不能为空");
+        if (product.getPrice() == null) return Result.error("价格不能为空");
         product.setMerchantId(merchant.getId());
-        productService.addProduct(product);
-        return Result.success("商品发布成功");
+        product.setId(null);
+        try {
+            productService.addProduct(product);
+            return Result.success("商品发布成功");
+        } catch (Exception e) {
+            return Result.error("添加失败: " + e.getMessage());
+        }
     }
 
-    // ====================== 根据ID查询商品 ======================
     @GetMapping("/detail/{id}")
     public Result getProductById(@PathVariable Integer id) {
         Product product = productService.getById(id);
-        if (product == null) {
-            return Result.error("商品不存在或已下架");
-        }
-        return Result.success(product);
+        return product == null ? Result.error("商品不存在或已下架") : Result.success(product);
     }
 
-    // ====================== 获取店铺的所有商品 ======================
     @GetMapping("/list/{merchantId}")
     public Result getListByShop(@PathVariable Integer merchantId) {
         List<Product> list = productService.getByMerchantId(merchantId);
         return Result.success(list);
     }
 
-    // ====================== 按分类获取商品 ======================
     @GetMapping("/listByCategory")
-    public Result getListByCategory(
-            @RequestParam Integer merchantId,
-            @RequestParam Integer categoryId) {
+    public Result getListByCategory(@RequestParam Integer merchantId, @RequestParam Integer categoryId) {
         List<Product> list = productService.getByMerchantAndCategory(merchantId, categoryId);
         return Result.success(list);
     }
 
-    // ====================== 上下架商品 ======================
     @PostMapping("/updateStatus")
-    public Result updateStatus(
-            @RequestParam Integer id,
-            @RequestParam Integer status,
-            @RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) {
-            return Result.error("请先登录");
-        }
-
+    public Result updateStatus(@RequestParam Integer id, @RequestParam Integer status, @RequestHeader("token") String token) {
+        if (!jwtUtils.validateToken(token)) return Result.error("请先登录");
         String username = jwtUtils.getUsernameFromToken(token);
         User user = userService.getUserByUsername(username);
-        if (user == null) {
-            return Result.error("用户不存在");
-        }
-
+        if (user == null) return Result.error("用户不存在");
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
-        if (merchant == null) {
-            return Result.error("你还不是商家");
-        }
-
+        if (merchant == null) return Result.error("无权限");
         Product product = productService.getById(id);
-        if (product == null) {
-            return Result.error("商品不存在");
-        }
-
-        if (!product.getMerchantId().equals(merchant.getId())) {
-            return Result.error("无权限操作");
-        }
-
+        if (product == null) return Result.error("商品不存在");
+        if (!product.getMerchantId().equals(merchant.getId())) return Result.error("无权操作");
         productService.updateStatus(id, status);
         return Result.success("状态已更新");
     }
 
-    // ====================== 删除商品 ======================
     @PostMapping("/delete/{id}")
     public Result deleteProduct(@PathVariable Integer id, @RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) {
-            return Result.error("请先登录");
-        }
-
+        if (!jwtUtils.validateToken(token)) return Result.error("请先登录");
         String username = jwtUtils.getUsernameFromToken(token);
         User user = userService.getUserByUsername(username);
-        if (user == null) {
-            return Result.error("用户不存在");
-        }
-
+        if (user == null) return Result.error("用户不存在");
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
-        if (merchant == null) {
-            return Result.error("你还不是商家");
-        }
-
+        if (merchant == null) return Result.error("无权限");
         Product product = productService.getById(id);
-        if (product == null) {
-            return Result.error("商品不存在");
-        }
-
-        if (!product.getMerchantId().equals(merchant.getId())) {
-            return Result.error("无权限");
-        }
-
+        if (product == null) return Result.error("商品不存在");
+        if (!product.getMerchantId().equals(merchant.getId())) return Result.error("无权操作");
         productService.deleteProduct(id);
         return Result.success("删除成功");
     }

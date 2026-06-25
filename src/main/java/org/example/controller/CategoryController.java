@@ -33,31 +33,32 @@ public class CategoryController {
     // 添加分类（需要登录）
     @PostMapping("/add")
     public Result add(@RequestBody Category category, @RequestHeader("token") String token) {
-        // 1. 校验 token
         if (!jwtUtils.validateToken(token)) {
             return Result.error("请先登录");
         }
-
-        // 2. 从 token 拿用户名
         String username = jwtUtils.getUsernameFromToken(token);
-
-        // 3. 使用专用方法获取用户（不校验密码）
         User user = userService.getUserByUsername(username);
-        if (user == null) {
+        if (user == null || user.getId() == null) {
             return Result.error("用户不存在");
         }
-
-        // 4. 获取商家信息
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
         if (merchant == null) {
-            return Result.error("当前账号不是商家，无法添加分类");
+            return Result.error("当前账号不是商家，请先入驻店铺");
         }
-
+        if (category.getName() == null || category.getName().trim().isEmpty()) {
+            return Result.error("分类名称不能为空");
+        }
         category.setMerchantId(merchant.getId());
-
-        // 5. 执行添加
-        categoryService.addCategory(category);
-        return Result.success("添加成功");
+        if (category.getSort() == null) category.setSort(0);
+        category.setId(null); // 确保自增主键
+        try {
+            categoryService.addCategory(category);
+            return Result.success("添加成功");
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        } catch (Exception e) {
+            return Result.error("添加失败: " + e.getMessage());
+        }
     }
 
     // 根据商家ID查询分类列表（公开接口，无需登录）

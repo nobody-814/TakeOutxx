@@ -18,9 +18,17 @@ public interface CartMapper {
                                        @Param("merchantId") Integer merchantId);
 
     // 查询购物车 + 商品信息（结算必须用）
-    @Select("SELECT c.*, p.name, p.price, p.image FROM cart c " +
-            "LEFT JOIN product p ON c.product_id = p.id " +
+    @Select("SELECT c.* FROM cart c " +
             "WHERE c.user_id = #{userId} AND c.merchant_id = #{merchantId}")
+    @Results({
+        @Result(column = "id", property = "id"),
+        @Result(column = "user_id", property = "userId"),
+        @Result(column = "merchant_id", property = "merchantId"),
+        @Result(column = "product_id", property = "productId"),
+        @Result(column = "quantity", property = "quantity"),
+        @Result(column = "product_id", property = "product",
+                one = @One(select = "org.example.mapper.ProductMapper.selectByIdIncludeOffline"))
+    })
     List<Cart> selectCartWithProduct(@Param("userId") Integer userId,
                                      @Param("merchantId") Integer merchantId);
 

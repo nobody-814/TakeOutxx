@@ -17,7 +17,6 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 密码加密器（不动）
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -27,11 +26,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                // ✅【关键】开启跨域支持
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // 保持你原来的：全部放行
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(httpBasic -> httpBasic.disable());
@@ -39,13 +36,12 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ===================== 【新增】跨域配置 =====================
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of("Content-Type", "token", "Authorization", "*"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 

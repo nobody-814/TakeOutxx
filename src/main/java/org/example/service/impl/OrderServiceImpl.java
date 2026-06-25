@@ -65,36 +65,23 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.updateStatus(id, 3) > 0;
     }
 
-    // ====================== 【核心：购物车一键结算】 ======================
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String submitOrderFromCart(Integer userId, Integer merchantId, Order orderInfo) {
-
-        // 1. 获取购物车列表（带商品信息）
         List<Cart> cartList = cartService.getCartWithProduct(userId, merchantId);
         if (cartList == null || cartList.isEmpty()) {
             throw new RuntimeException("购物车为空，无法下单");
         }
-
-        // 2. 生成唯一订单号
         String orderId = "ORD_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-
-        // 3. 封装订单信息
         orderInfo.setId(orderId);
         orderInfo.setUserId(userId);
         orderInfo.setMerchantId(merchantId);
-        orderInfo.setStatus(0); // 0=待支付
+        orderInfo.setStatus(0);
         orderInfo.setCreatedAt(LocalDateTime.now());
-
-        // 优惠默认为0
         if (orderInfo.getDiscountAmount() == null) {
             orderInfo.setDiscountAmount(BigDecimal.ZERO);
         }
-
-        // 4. 插入订单主表
         orderMapper.insert(orderInfo);
-
-        // 5. 批量插入订单项（商品快照）
         for (Cart cart : cartList) {
             OrderItem item = new OrderItem();
             item.setOrderId(orderId);
@@ -102,19 +89,43 @@ public class OrderServiceImpl implements OrderService {
             item.setProductName(cart.getProduct().getName());
             item.setProductPrice(cart.getProduct().getPrice());
             item.setQuantity(cart.getQuantity());
-
-            // 计算小计
             BigDecimal itemTotal = cart.getProduct().getPrice()
                     .multiply(new BigDecimal(cart.getQuantity()));
             item.setTotalPrice(itemTotal);
-
             orderItemService.addOrderItem(item);
         }
-
-        // 6. 清空当前店铺购物车
         cartService.clearCart(userId, merchantId);
-
-        // 7. 返回订单号
         return orderId;
+    }
+
+    @Override
+    public boolean payOrder(String id) {
+        orderMapper.updateStatus(id, 1);
+        return true;
+    }
+
+    @Override
+    public List<Order> getRiderCurrentOrders(Integer riderId) {
+        return orderMapper.selectCurrentByRiderId(riderId);
+    }
+
+    @Override
+    public boolean completeOrder(String id) {
+        return orderMapper.updateStatus(id, 4) > 0;
+    }
+
+    @Override
+    public List<Order> getRiderOrders(Integer riderId) {
+        return orderMapper.selectByRiderId(riderId);
+    }
+
+    @Override
+    public int getMerchantOrderCount(Integer merchantId) {
+        return orderMapper.countByMerchantId(merchantId);
+    }
+
+    @Override
+    public java.math.BigDecimal getMerchantTotalSales(Integer merchantId) {
+        return orderMapper.sumSalesByMerchantId(merchantId);
     }
 }

@@ -17,6 +17,10 @@ public interface ProductMapper {
     @Select("SELECT * FROM product WHERE id = #{id} AND status = 1")
     Product selectById(Integer id);
 
+    // 根据ID查询（含已下架商品，供购物车关联使用）
+    @Select("SELECT * FROM product WHERE id = #{id}")
+    Product selectByIdIncludeOffline(Integer id);
+
     // 查询某个商家的【全部上架商品】
     @Select("SELECT * FROM product WHERE merchant_id = #{merchantId} AND status = 1")
     List<Product> selectByMerchantId(Integer merchantId);
