@@ -1,0 +1,18 @@
+﻿$path = "C:\Users\戴俊杰\IdeaProjects\springboot_qs\TakeOutxx\src\main\resources\static\viewport.html"
+$css = @"
+:root {
+    --primary: #FF6B35; --primary-dark: #E85A2A; --primary-light: #FFF0E8;
+    --success: #2ECC71; --warning: #F39C12; --danger: #E74C3C; --info: #3498DB;
+    --bg: #F8F9FA; --card: #FFFFFF; --text: #2C3E50; --text-secondary: #7F8C8D;
+    --border: #ECF0F1; --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-hover: 0 6px 24px rgba(0,0,0,0.1); --radius: 14px; --radius-sm: 10px;
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased;
+}
+"@
+$css | Set-Content -Path $path -Encoding UTF8
+Write-Output "CSS written"
