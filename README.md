@@ -111,22 +111,19 @@ mvn spring-boot:run
 # 后端运行在 http://localhost:8080
 ```
 
-### 配置文件
-`src/main/resources/application.yml`
-```yaml
-server:
-  port: 8080
+### 环境变量配置
 
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/TakeOutxx?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: root
-    password: 你的密码
+敏感配置通过 IntelliJ IDEA 环境变量注入，不写入配置文件。
 
-jwt:
-  secret: 你的密钥
-  expiration: 3600000
+在 IDEA 中打开 **Run → Edit Configurations → Environment variables**，添加：
+
 ```
+DB_PASSWORD=数据库密码
+JWT_SECRET=JWT密钥
+AI_API_KEY=AI接口密钥
+```
+
+`application.yml` 中对应引用 `${DB_PASSWORD}` / `${JWT_SECRET}` / `${AI_API_KEY}`。
 
 ## API 概览
 
@@ -154,3 +151,4 @@ jwt:
 ## 作者
 
 后端独立开发 — [nobody-814](https://github.com/nobody-814)
+
