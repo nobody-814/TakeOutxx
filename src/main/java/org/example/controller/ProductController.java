@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.Utils.JwtUtils;
+import org.example.Utils.SecurityUtil;
 import org.example.domain.Merchant;
 import org.example.domain.Product;
 import org.example.domain.Result;
@@ -27,15 +27,10 @@ public class ProductController {
     @Resource
     private UserService userService;
 
-    @Resource
-    private JwtUtils jwtUtils;
-
     @PostMapping("/add")
-    public Result addProduct(@RequestBody Product product, @RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) return Result.error("请先登录");
-        String username = jwtUtils.getUsernameFromToken(token);
-        User user = userService.getUserByUsername(username);
-        if (user == null || user.getId() == null) return Result.error("用户不存在");
+    public Result addProduct(@RequestBody Product product) {
+        User user = SecurityUtil.getCurrentUser();
+        if (user == null) return Result.error("请先登录");
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
         if (merchant == null) return Result.error("你还没有开通店铺，请先入驻");
         if (product.getName() == null || product.getName().trim().isEmpty()) return Result.error("商品名称不能为空");
@@ -58,22 +53,18 @@ public class ProductController {
 
     @GetMapping("/list/{merchantId}")
     public Result getListByShop(@PathVariable Integer merchantId) {
-        List<Product> list = productService.getByMerchantId(merchantId);
-        return Result.success(list);
+        return Result.success(productService.getByMerchantId(merchantId));
     }
 
     @GetMapping("/listByCategory")
     public Result getListByCategory(@RequestParam Integer merchantId, @RequestParam Integer categoryId) {
-        List<Product> list = productService.getByMerchantAndCategory(merchantId, categoryId);
-        return Result.success(list);
+        return Result.success(productService.getByMerchantAndCategory(merchantId, categoryId));
     }
 
     @PostMapping("/updateStatus")
-    public Result updateStatus(@RequestParam Integer id, @RequestParam Integer status, @RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) return Result.error("请先登录");
-        String username = jwtUtils.getUsernameFromToken(token);
-        User user = userService.getUserByUsername(username);
-        if (user == null) return Result.error("用户不存在");
+    public Result updateStatus(@RequestParam Integer id, @RequestParam Integer status) {
+        User user = SecurityUtil.getCurrentUser();
+        if (user == null) return Result.error("请先登录");
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
         if (merchant == null) return Result.error("无权限");
         Product product = productService.getById(id);
@@ -84,11 +75,9 @@ public class ProductController {
     }
 
     @PostMapping("/delete/{id}")
-    public Result deleteProduct(@PathVariable Integer id, @RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) return Result.error("请先登录");
-        String username = jwtUtils.getUsernameFromToken(token);
-        User user = userService.getUserByUsername(username);
-        if (user == null) return Result.error("用户不存在");
+    public Result deleteProduct(@PathVariable Integer id) {
+        User user = SecurityUtil.getCurrentUser();
+        if (user == null) return Result.error("请先登录");
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
         if (merchant == null) return Result.error("无权限");
         Product product = productService.getById(id);

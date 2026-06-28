@@ -74,6 +74,7 @@ public class RiderServiceImpl implements RiderService {
     @Override
     public boolean changeRating(Integer riderId, BigDecimal rating) {
         // 评分范围 0 ~ 5
+
         if (riderId == null || rating == null || rating.compareTo(BigDecimal.ZERO) < 0 || rating.compareTo(new BigDecimal("5.0")) > 0) {
             return false;
         }

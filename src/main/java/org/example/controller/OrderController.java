@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.annotation.Resource;
-import org.example.Utils.JwtUtils;
+import org.example.Utils.SecurityUtil;
 import org.example.domain.Merchant;
 import org.example.domain.Order;
 import org.example.domain.Result;
@@ -28,16 +28,10 @@ public class OrderController {
     @Resource
     private MerchantService merchantService;
 
-    @Resource
-    private JwtUtils jwtUtils;
-
-    // 创建订单
     @PostMapping("/create")
-    public Result create(@RequestBody Order order, @RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) return Result.error("请先登录");
-        String username = jwtUtils.getUsernameFromToken(token);
-        User user = userService.getUserByUsername(username);
-        if (user == null) return Result.error("用户不存在");
+    public Result create(@RequestBody Order order) {
+        User user = SecurityUtil.getCurrentUser();
+        if (user == null) return Result.error("请先登录");
         order.setUserId(user.getId());
         order.setId("ORD" + System.currentTimeMillis());
         order.setStatus(0);
@@ -52,29 +46,25 @@ public class OrderController {
     }
 
     @GetMapping("/myOrders")
-    public Result myOrders(@RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) return Result.error("未登录");
-        User user = userService.getUserByUsername(jwtUtils.getUsernameFromToken(token));
-        if (user == null) return Result.error("用户不存在");
+    public Result myOrders() {
+        User user = SecurityUtil.getCurrentUser();
+        if (user == null) return Result.error("未登录");
         return Result.success(orderService.getMyOrders(user.getId()));
     }
 
     @GetMapping("/merchantOrders")
-    public Result merchantOrders(@RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) return Result.error("未登录");
-        User user = userService.getUserByUsername(jwtUtils.getUsernameFromToken(token));
-        if (user == null) return Result.error("用户不存在");
+    public Result merchantOrders() {
+        User user = SecurityUtil.getCurrentUser();
+        if (user == null) return Result.error("未登录");
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
         if (merchant == null) return Result.error("未开通店铺");
         return Result.success(orderService.getMerchantOrders(merchant.getId()));
     }
 
-    // 商家统计数据（订单数 + 总销售额）
     @GetMapping("/merchant/stats")
-    public Result merchantStats(@RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) return Result.error("请先登录");
-        User user = userService.getUserByUsername(jwtUtils.getUsernameFromToken(token));
-        if (user == null) return Result.error("用户不存在");
+    public Result merchantStats() {
+        User user = SecurityUtil.getCurrentUser();
+        if (user == null) return Result.error("请先登录");
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
         if (merchant == null) return Result.error("未开通店铺");
         Map<String, Object> stats = new HashMap<>();
@@ -89,18 +79,17 @@ public class OrderController {
     }
 
     @PostMapping("/rider/take")
-    public Result takeOrder(@RequestParam String orderId, @RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) return Result.error("请先登录");
-        User user = userService.getUserByUsername(jwtUtils.getUsernameFromToken(token));
-        if (user == null) return Result.error("用户不存在");
+    public Result takeOrder(@RequestParam String orderId) {
+        User user = SecurityUtil.getCurrentUser();
+        if (user == null) return Result.error("请先登录");
         orderService.riderTakeOrder(orderId, user.getId());
         return Result.success("接单成功");
     }
 
-    // 支付（模拟自动支付 0→1）
     @PostMapping("/pay/{id}")
-    public Result payOrder(@PathVariable String id, @RequestHeader("token") String token) {
-        if (!jwtUtils.validateToken(token)) return Result.error("请先登录");
+    public Result payOrder(@PathVariable String id) {
+        User user = SecurityUtil.getCurrentUser();
+        if (user == null) return Result.error("请先登录");
         Order order = orderService.getOrderById(id);
         if (order == null) return Result.error("订单不存在");
         if (order.getStatus() != 0) return Result.error("订单状态异常");
