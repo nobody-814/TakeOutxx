@@ -9,4 +9,5 @@ public class Rider {
     private String deliveryScope;
     private Integer status;
     private BigDecimal rating;
+    private Integer reviewCount;
 }

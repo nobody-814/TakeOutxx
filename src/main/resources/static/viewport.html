@@ -1,4 +1,4 @@
-﻿
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -198,7 +198,7 @@
                 <div class="order-card" v-for="order in orderList" :key="order.id" @click="viewOrderDetail(order)">
                     <div class="order-card-header"><span class="order-shop">订单号: {{ order.id }}</span><span :class="['order-status','os-'+order.status]" v-text="orderStatusText(order.status)"></span></div>
                     <div class="order-card-body"><div>收件人: {{ order.receiver||'未填' }}</div><div>电话: {{ order.phone||'未填' }}</div><div>地址: {{ order.address }}</div></div>
-                    <div class="order-card-footer"><span class="order-amount">¥{{ order.payAmount||order.totalAmount }}</span><span class="order-time">{{ order.createdAt }}</span><button v-if="order.status===0" class="btn btn-success btn-sm" @click.stop="payOrder(order.id)" style="margin-left:8px">去支付</button></div></div>
+                    <div class="order-card-footer"><span class="order-amount">¥{{ order.payAmount||order.totalAmount }}</span><span class="order-time">{{ order.createdAt }}</span><button v-if="order.status===0" class="btn btn-success btn-sm" @click.stop="payOrder(order.id)" style="margin-left:8px">去支付</button><button v-if="order.status===4" class="btn btn-warning btn-sm" @click.stop="openReview(order)" style="margin-left:8px">评价</button></div></div>
                 <div class="empty-state" v-if="!orderLoading&&!orderList.length"><div class="empty-icon">📋</div><p>暂无订单</p></div></template>
             <template v-if="page==='profile'">
                 <div class="section-title">👤 个人中心</div>
@@ -310,7 +310,12 @@
             <div class="form-group"><label class="form-label">分类</label><select class="form-input" v-model="productForm.categoryId"><option :value="null">请选择分类</option><option v-for="cat in categoryList" :key="cat.id" :value="cat.id" v-text="cat.name"></option></select></div>
             <div class="form-group"><label class="form-label">库存（0=无限）</label><input class="form-input" type="number" v-model="productForm.stock" value="0"></div>
             <button class="btn btn-primary" @click="addProduct">确认添加</button></div></div>
-    </div>
+
+        <div class="modal-mask" v-if="showReview" @click.self="showReview=false"><div class="modal-box"><div class="modal-header"><span class="modal-title">⭐ 评价</span><button class="modal-close" @click="showReview=false">&times;</button></div>
+            <div class="form-group"><label class="form-label">商家评分</label><div><span v-for="s in 5" :key="'ms'+s" style="font-size:24px;cursor:pointer" @click="reviewForm.merchantRating=s" v-text="s<=reviewForm.merchantRating?'★':'☆'"></span></div></div>
+            <div class="form-group"><label class="form-label">骑手评分</label><div><span v-for="s in 5" :key="'rs'+s" style="font-size:24px;cursor:pointer" @click="reviewForm.riderRating=s" v-text="s<=reviewForm.riderRating?'★':'☆'"></span></div></div>
+            <div class="form-group"><label class="form-label">评价内容</label><textarea class="form-input" v-model="reviewForm.content" rows="3" placeholder="写下您的评价..."></textarea></div>
+            <button class="btn btn-primary" @click="submitReview" :disabled="submitting">提交评价</button></div></div>    </div>
 </div>
 
 <script>
@@ -328,7 +333,7 @@ createApp({
             categoryForm: { name: '', sort: 0 }, showAddCategory: false, submitting: false,
             productList: [],
             productForm: { name: '', price: '', originalPrice: '', description: '', categoryId: null, stock: 0 },
-            showAddProduct: false,
+            showAddProduct: false, showReview: false, reviewOrder: null, reviewForm: { merchantRating: 5, riderRating: 5, content: "" },
             cartList: [], showCart: false,
             orderList: [], orderLoading: false, showOrderDetail: false, detailOrder: null, orderItems: [], waitOrders: [],
             merchantInfo: null, merchantForm: { shopName: '', address: '', businessHours: '' },
@@ -391,7 +396,7 @@ createApp({
         async addCategory() { if (this.submitting) return; if (!this.categoryForm.name.trim()) return this.toastMsg('请输入分类名称', 'error'); this.submitting = true; const res = await this.api('/category/add', { method: 'POST', headers: this.getHeaders(), body: JSON.stringify(this.categoryForm) }); this.submitting = false; if (res.code === 200) { this.toastMsg('分类添加成功', 'success'); this.showAddCategory = false; this.categoryForm = { name: '', sort: 0 }; this.loadCategoryList(); } else this.toastMsg(res.msg || '添加失败', 'error'); },
         async loadProducts() { if (!this.currentShopId) return; const res = await this.api('/product/list/' + this.currentShopId); if (res.code === 200) this.productList = res.data || []; },
         async loadProductsByCategory(catId) { if (!this.currentShopId) return; const res = await this.api('/product/listByCategory?merchantId=' + this.currentShopId + '&categoryId=' + catId); if (res.code === 200) this.productList = res.data || []; },
-        async loadManageProducts() { if (!this.merchantInfo) return; this.currentShopId = this.merchantInfo.id; if (this.selectedCategory) { await this.loadManageProductsByCategory(this.selectedCategory); } else { const res = await this.api('/product/list/' + this.merchantInfo.id); if (res.code === 200) this.productList = res.data || []; } },
+        async loadManageProducts() { if (!this.merchantInfo) return; this.currentShopId = this.merchantInfo.id; if (this.selectedCategory) { await this.loadManageProductsByCategory(this.selectedCategory); } else { const res = await this.api('/product/manageList/' + this.merchantInfo.id); if (res.code === 200) this.productList = res.data || []; } },
         async loadManageProductsByCategory(catId) { if (!this.merchantInfo) return; const res = await this.api('/product/listByCategory?merchantId=' + this.merchantInfo.id + '&categoryId=' + catId); if (res.code === 200) this.productList = res.data || []; },
         async addProduct() { if (this.submitting) return; if (!this.productForm.name || !this.productForm.price) return this.toastMsg('请填写商品名称和价格', 'error'); if (!this.productForm.categoryId) return this.toastMsg('请选择分类', 'error'); this.submitting = true; const res = await this.api('/product/add', { method: 'POST', headers: this.getHeaders(), body: JSON.stringify(this.productForm) }); this.submitting = false; if (res.code === 200) { this.toastMsg('添加成功', 'success'); this.showAddProduct = false; this.productForm = { name: '', price: '', originalPrice: '', description: '', categoryId: null, stock: 0 }; this.loadManageProducts(); } else this.toastMsg(res.msg || '添加失败', 'error'); },
         async toggleProductStatus(prod) { const ns = prod.status === 1 ? 0 : 1; const res = await this.api('/product/updateStatus?id=' + prod.id + '&status=' + ns, { method: 'POST', headers: this.getHeaders() }); if (res.code === 200) { this.toastMsg('状态已更新', 'success'); this.loadManageProducts(); } else this.toastMsg(res.msg || '操作失败', 'error'); },
@@ -458,6 +463,20 @@ createApp({
             this.submitting = false;
             if (res.code === 200) { this.toastMsg('骑手认证成功！即将跳转骑手后台', 'success'); this.userInfo.role = 2; this.role = 2; localStorage.setItem('userInfo', JSON.stringify(this.userInfo)); this.page = 'pendingOrders'; this.loadRiderInfo(); }
             else this.toastMsg(res.msg || '认证失败', 'error');
+        },
+    
+        openReview(order) { this.reviewOrder = order; this.reviewForm = { merchantRating: 5, riderRating: 5, content: "" }; this.showReview = true; },
+        async submitReview() {
+            if (this.submitting) return;
+            this.submitting = true;
+            const reviews = [
+                { type: 1, rating: this.reviewForm.merchantRating, content: this.reviewForm.content },
+                { type: 3, rating: this.reviewForm.riderRating, content: this.reviewForm.content }
+            ];
+            const res = await this.api("/review/submit?orderId=" + this.reviewOrder.id, { method: "POST", headers: this.getHeaders(), body: JSON.stringify(reviews) });
+            this.submitting = false;
+            if (res.code === 200) { this.toastMsg("评价成功", "success"); this.showReview = false; this.loadMyOrders(); this.loadShops(); }
+            else this.toastMsg(res.msg || "评价失败", "error");
         },
     },
     mounted() {

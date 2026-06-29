@@ -17,4 +17,6 @@ public class Product {
     private Integer sales;
     private Integer status;
     private Integer sort;
+    private BigDecimal rating;
+    private Integer reviewCount;
 }

@@ -9,23 +9,18 @@ import org.example.domain.User;
 import org.example.service.MerchantService;
 import org.example.service.ProductService;
 import org.example.service.UserService;
+import org.example.service.impl.ProductServiceImpl;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/takeout/product")
 @CrossOrigin
 public class ProductController {
 
-    @Resource
-    private ProductService productService;
-
-    @Resource
-    private MerchantService merchantService;
-
-    @Resource
-    private UserService userService;
+    @Resource private ProductService productService;
+    @Resource private ProductServiceImpl productServiceImpl;
+    @Resource private MerchantService merchantService;
+    @Resource private UserService userService;
 
     @PostMapping("/add")
     public Result addProduct(@RequestBody Product product) {
@@ -39,6 +34,7 @@ public class ProductController {
         product.setId(null);
         try {
             productService.addProduct(product);
+            productServiceImpl.evictProductCache(merchant.getId());
             return Result.success("商品发布成功");
         } catch (Exception e) {
             return Result.error("添加失败: " + e.getMessage());
@@ -56,6 +52,11 @@ public class ProductController {
         return Result.success(productService.getByMerchantId(merchantId));
     }
 
+    @GetMapping("/manageList/{merchantId}")
+    public Result getManageList(@PathVariable Integer merchantId) {
+        return Result.success(productService.getAllByMerchantId(merchantId));
+    }
+
     @GetMapping("/listByCategory")
     public Result getListByCategory(@RequestParam Integer merchantId, @RequestParam Integer categoryId) {
         return Result.success(productService.getByMerchantAndCategory(merchantId, categoryId));
@@ -71,6 +72,8 @@ public class ProductController {
         if (product == null) return Result.error("商品不存在");
         if (!product.getMerchantId().equals(merchant.getId())) return Result.error("无权操作");
         productService.updateStatus(id, status);
+        productServiceImpl.evictProductCache(merchant.getId());
+        productServiceImpl.evictProductDetailCache(id);
         return Result.success("状态已更新");
     }
 
@@ -84,6 +87,8 @@ public class ProductController {
         if (product == null) return Result.error("商品不存在");
         if (!product.getMerchantId().equals(merchant.getId())) return Result.error("无权操作");
         productService.deleteProduct(id);
+        productServiceImpl.evictProductCache(merchant.getId());
+        productServiceImpl.evictProductDetailCache(id);
         return Result.success("删除成功");
     }
 }

@@ -4,6 +4,7 @@ import org.example.domain.Cart;
 import org.example.domain.Order;
 import org.example.domain.OrderItem;
 import org.example.mapper.OrderMapper;
+import org.example.mapper.RiderMapper;
 import org.example.service.CartService;
 import org.example.service.OrderItemService;
 import org.example.service.OrderService;
@@ -28,6 +29,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderItemService orderItemService;
 
+    @Autowired
+    private RiderMapper riderMapper;
+
     @Override
     public int createOrder(Order order) {
         order.setCreatedAt(LocalDateTime.now());
@@ -41,12 +45,22 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Order> getMyOrders(Integer userId) {
-        return orderMapper.selectByUserId(userId);
+        return orderMapper.selectByUserId(userId, null);
+    }
+
+    @Override
+    public List<Order> getMyOrders(Integer userId, Integer status) {
+        return orderMapper.selectByUserId(userId, status);
     }
 
     @Override
     public List<Order> getMerchantOrders(Integer merchantId) {
-        return orderMapper.selectByMerchantId(merchantId);
+        return orderMapper.selectByMerchantId(merchantId, null);
+    }
+
+    @Override
+    public List<Order> getMerchantOrders(Integer merchantId, Integer status) {
+        return orderMapper.selectByMerchantId(merchantId, status);
     }
 
     @Override
@@ -111,12 +125,21 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public boolean completeOrder(String id) {
+        Order order = orderMapper.selectById(id);
+        if (order != null && order.getRiderId() != null) {
+            riderMapper.updateStatus(order.getRiderId(), 1);
+        }
         return orderMapper.updateStatus(id, 4) > 0;
     }
 
     @Override
     public List<Order> getRiderOrders(Integer riderId) {
-        return orderMapper.selectByRiderId(riderId);
+        return orderMapper.selectByRiderId(riderId, null);
+    }
+
+    @Override
+    public List<Order> getRiderOrders(Integer riderId, Integer status) {
+        return orderMapper.selectByRiderId(riderId, status);
     }
 
     @Override
@@ -127,5 +150,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public java.math.BigDecimal getMerchantTotalSales(Integer merchantId) {
         return orderMapper.sumSalesByMerchantId(merchantId);
+    }
+
+    @Override
+    public boolean cancelOrder(String id) {
+        return orderMapper.cancelOrder(id) > 0;
     }
 }

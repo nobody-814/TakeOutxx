@@ -4,7 +4,7 @@ import org.example.domain.Cart;
 import java.util.List;
 
 public interface CartService {
-    boolean addCart(Cart cart);
+    void addCart(Cart cart);
     List<Cart> getCartList(Integer userId, Integer merchantId);
     List<Cart> getCartWithProduct(Integer userId, Integer merchantId);
     boolean updateQuantity(Integer id, Integer quantity);

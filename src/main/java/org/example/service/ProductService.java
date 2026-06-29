@@ -8,6 +8,7 @@ public interface ProductService {
     Product getById(Integer id);
     List<Product> getByMerchantId(Integer merchantId);
     List<Product> getByMerchantAndCategory(Integer merchantId, Integer categoryId);
+    List<Product> getAllByMerchantId(Integer merchantId);
     boolean updateStatus(Integer id, Integer status);
     boolean deleteProduct(Integer id);
     boolean addSales(Integer id);

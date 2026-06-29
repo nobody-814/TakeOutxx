@@ -6,20 +6,30 @@ import org.example.mapper.MerchantMapper;
 import org.example.mapper.UserMapper;
 import org.example.service.MerchantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.example.Common.RedisConstant.MERCHANT_LIST_KEY;
+import static org.example.Common.RedisConstant.MERCHANT_TTL;
 
 @Service
 public class MerchantServiceImpl implements MerchantService {
+    private final RedisTemplate redisTemplate;
 
     @Autowired
     private UserMapper userMapper;
 
     @Autowired
     private MerchantMapper merchantMapper;
+
+    public MerchantServiceImpl(RedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     // ====================== 1. 创建商家（入驻） ======================
     @Override
@@ -68,7 +78,16 @@ public class MerchantServiceImpl implements MerchantService {
     // ====================== 4. 获取所有有效商家（未被封禁） ======================
     @Override
     public List<Merchant> getAllValidMerchants() {
-        return merchantMapper.selectAll();
+        @SuppressWarnings("unchecked")
+        List<Merchant> cached = (List<Merchant>) redisTemplate.opsForValue().get(MERCHANT_LIST_KEY);
+        if (cached != null) return cached;
+        List<Merchant> list = merchantMapper.selectValid();
+        redisTemplate.opsForValue().set(MERCHANT_LIST_KEY, list, MERCHANT_TTL, TimeUnit.SECONDS);
+        return list;
+    }
+    /** 门店变更时清除缓存 */
+    public void evictMerchantCache() {
+        redisTemplate.delete(MERCHANT_LIST_KEY);
     }
 
     // ====================== 5. 更新营业状态 ======================

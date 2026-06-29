@@ -10,8 +10,10 @@ public interface OrderService {
     Order getOrderById(String id);
 
     List<Order> getMyOrders(Integer userId);
+    List<Order> getMyOrders(Integer userId, Integer status);
 
     List<Order> getMerchantOrders(Integer merchantId);
+    List<Order> getMerchantOrders(Integer merchantId, Integer status);
 
     List<Order> getWaitRiderOrders();
 
@@ -22,12 +24,17 @@ public interface OrderService {
     String submitOrderFromCart(Integer userId, Integer merchantId, Order orderInfo);
 
     boolean payOrder(String id);
+
     List<Order> getRiderCurrentOrders(Integer riderId);
+
     boolean completeOrder(String id);
 
     List<Order> getRiderOrders(Integer riderId);
+    List<Order> getRiderOrders(Integer riderId, Integer status);
 
     int getMerchantOrderCount(Integer merchantId);
 
     java.math.BigDecimal getMerchantTotalSales(Integer merchantId);
+
+    boolean cancelOrder(String id);
 }

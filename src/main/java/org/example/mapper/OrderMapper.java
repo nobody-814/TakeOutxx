@@ -16,11 +16,19 @@ public interface OrderMapper {
     @Select("SELECT * FROM `order` WHERE id = #{id}")
     Order selectById(String id);
 
-    @Select("SELECT * FROM `order` WHERE user_id = #{userId} ORDER BY created_at DESC")
-    List<Order> selectByUserId(Integer userId);
+    @Select("<script>" +
+            "SELECT * FROM `order` WHERE user_id = #{userId}" +
+            "<if test='status != null'> AND status = #{status}</if>" +
+            " ORDER BY created_at DESC" +
+            "</script>")
+    List<Order> selectByUserId(@Param("userId") Integer userId, @Param("status") Integer status);
 
-    @Select("SELECT * FROM `order` WHERE merchant_id = #{merchantId} ORDER BY created_at DESC")
-    List<Order> selectByMerchantId(Integer merchantId);
+    @Select("<script>" +
+            "SELECT * FROM `order` WHERE merchant_id = #{merchantId}" +
+            "<if test='status != null'> AND status = #{status}</if>" +
+            " ORDER BY created_at DESC" +
+            "</script>")
+    List<Order> selectByMerchantId(@Param("merchantId") Integer merchantId, @Param("status") Integer status);
 
     @Select("SELECT * FROM `order` WHERE status = 1")
     List<Order> selectWaitRider();
@@ -30,15 +38,23 @@ public interface OrderMapper {
 
     @Update("UPDATE `order` SET rider_id = #{riderId} WHERE id = #{id}")
     int bindRider(@Param("id") String id, @Param("riderId") Integer riderId);
+
     @Select("SELECT * FROM `order` WHERE rider_id = #{riderId} AND status = 3")
     List<Order> selectCurrentByRiderId(Integer riderId);
 
-    @Select("SELECT * FROM `order` WHERE rider_id = #{riderId} ORDER BY created_at DESC")
-    List<Order> selectByRiderId(Integer riderId);
+    @Select("<script>" +
+            "SELECT * FROM `order` WHERE rider_id = #{riderId}" +
+            "<if test='status != null'> AND status = #{status}</if>" +
+            " ORDER BY created_at DESC" +
+            "</script>")
+    List<Order> selectByRiderId(@Param("riderId") Integer riderId, @Param("status") Integer status);
 
     @Select("SELECT COUNT(*) FROM `order` WHERE merchant_id = #{merchantId} AND status >= 1 AND status != 5")
     int countByMerchantId(Integer merchantId);
 
     @Select("SELECT COALESCE(SUM(pay_amount), 0) FROM `order` WHERE merchant_id = #{merchantId} AND status >= 1 AND status != 5")
     java.math.BigDecimal sumSalesByMerchantId(Integer merchantId);
+
+    @Update("UPDATE `order` SET status = 5, cancel_time = NOW() WHERE id = #{id}")
+    int cancelOrder(@Param("id") String id);
 }

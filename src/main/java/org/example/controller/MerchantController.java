@@ -6,23 +6,23 @@ import org.example.domain.Merchant;
 import org.example.domain.Result;
 import org.example.domain.User;
 import org.example.service.MerchantService;
+import org.example.service.impl.MerchantServiceImpl;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/takeout/merchant")
 @CrossOrigin
 public class MerchantController {
 
-    @Resource
-    private MerchantService merchantService;
+    @Resource private MerchantService merchantService;
+    @Resource private MerchantServiceImpl merchantServiceImpl;
 
     @PostMapping("/create")
     public Result createMerchant(@RequestBody Merchant merchant) {
         User user = SecurityUtil.getCurrentUser();
         if (user == null) return Result.error("请先登录");
         int code = merchantService.createMerchant(merchant, user.getId().longValue());
+        if (code > 0) merchantServiceImpl.evictMerchantCache();
         return switch (code) {
             case -1 -> Result.error("用户不存在");
             case -2 -> Result.error("你已经创建过店铺，不可重复入驻");
@@ -58,6 +58,7 @@ public class MerchantController {
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
         if (merchant == null) return Result.error("无店铺信息");
         boolean success = merchantService.updateMerchantStatus(merchant.getId().longValue(), status);
+        if (success) merchantServiceImpl.evictMerchantCache();
         return success ? Result.success("状态更新成功") : Result.error("状态更新失败");
     }
 
@@ -69,6 +70,7 @@ public class MerchantController {
         if (myShop == null) return Result.error("无店铺信息");
         merchant.setId(myShop.getId());
         boolean success = merchantService.updateMerchantInfo(merchant);
+        if (success) merchantServiceImpl.evictMerchantCache();
         return success ? Result.success("店铺信息更新成功") : Result.error("更新失败");
     }
 
@@ -86,12 +88,14 @@ public class MerchantController {
     @PostMapping("/updateRating")
     public Result updateMerchantRating(@RequestParam Integer id, @RequestParam Double newRating) {
         boolean success = merchantService.updateMerchantRating(id.longValue(), newRating);
-        return success ? Result.success("评分更新成功（范围0-5）") : Result.error("评分更新失败");
+        if (success) merchantServiceImpl.evictMerchantCache();
+        return success ? Result.success("评分更新成功（范围1-5）") : Result.error("评分更新失败");
     }
 
     @PostMapping("/ban/{id}")
     public Result banMerchant(@PathVariable Integer id) {
         boolean success = merchantService.banMerchant(id.longValue());
+        if (success) merchantServiceImpl.evictMerchantCache();
         return success ? Result.success("店铺已封禁") : Result.error("封禁失败");
     }
 }

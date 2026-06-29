@@ -10,6 +10,7 @@ public interface CartMapper {
     // 添加购物车
     @Insert("INSERT INTO cart(user_id, merchant_id, product_id, quantity) " +
             "VALUES(#{userId}, #{merchantId}, #{productId}, #{quantity})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Cart cart);
 
     // 查询购物车（简易）
