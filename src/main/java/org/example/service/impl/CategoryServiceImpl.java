@@ -1,6 +1,6 @@
 package org.example.service.impl;
 
-import com.alibaba.fastjson.JSON;
+import org.example.Common.CacheService;
 import org.example.domain.Category;
 import org.example.mapper.CategoryMapper;
 import org.example.service.CategoryService;
@@ -17,13 +17,16 @@ import static org.example.Common.RedisConstant.CATEGORY_TTL;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final CacheService cacheService;
 
     @Autowired
     private CategoryMapper categoryMapper;
 
-    public CategoryServiceImpl(RedisTemplate redisTemplate) {
+    public CategoryServiceImpl(RedisTemplate<String, Object> redisTemplate,
+                               CacheService cacheService) {
         this.redisTemplate = redisTemplate;
+        this.cacheService = cacheService;
     }
 
     @Override
@@ -33,20 +36,27 @@ public class CategoryServiceImpl implements CategoryService {
             throw new RuntimeException("该分类名称已存在");
         }
         int result = categoryMapper.insert(category);
-        // 新增后清除缓存
         redisTemplate.delete(CATEGORY_LIST_KEY + category.getMerchantId());
+        return result;
+    }
+
+    @Override
+    public Category getById(Integer id) {
+        return categoryMapper.selectById(id);
+    }
+
+    @Override
+    public int deleteCategory(Integer categoryId, Integer merchantId) {
+        int result = categoryMapper.deleteById(categoryId);
+        redisTemplate.delete(CATEGORY_LIST_KEY + merchantId);
         return result;
     }
 
     @Override
     public List<Category> getByMerchantId(Integer merchantId) {
         String key = CATEGORY_LIST_KEY + merchantId;
-        Object val = redisTemplate.opsForValue().get(key);
-        if (val != null) {
-            return JSON.parseArray(val.toString(), Category.class);
-        }
-        List<Category> list = categoryMapper.selectByMerchantId(merchantId);
-        redisTemplate.opsForValue().set(key, JSON.toJSONString(list), CATEGORY_TTL, TimeUnit.SECONDS);
-        return list;
+        return cacheService.queryListWithProtect(key, Category.class,
+                () -> categoryMapper.selectByMerchantId(merchantId),
+                CATEGORY_TTL, TimeUnit.SECONDS);
     }
 }

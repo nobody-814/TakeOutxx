@@ -33,11 +33,16 @@ public interface OrderMapper {
     @Select("SELECT * FROM `order` WHERE status = 1")
     List<Order> selectWaitRider();
 
-    @Update("UPDATE `order` SET status = #{status} WHERE id = #{id}")
-    int updateStatus(@Param("id") String id, @Param("status") Integer status);
+    @Update("UPDATE `order` SET status = #{status} WHERE id = #{id} AND status = #{expected}")
+    int updateStatus(@Param("id") String id, @Param("status") Integer status, @Param("expected") Integer expected);
 
-    @Update("UPDATE `order` SET rider_id = #{riderId} WHERE id = #{id}")
-    int bindRider(@Param("id") String id, @Param("riderId") Integer riderId);
+    // 支付：待支付(0) → 待接单(1)，记录支付时间
+    @Update("UPDATE `order` SET status = 1, pay_time = NOW() WHERE id = #{id} AND status = 0")
+    int payOrder(@Param("id") String id);
+
+    // 骑手抢单：待接单(1) → 配送中(3)，原子绑定骑手
+    @Update("UPDATE `order` SET rider_id = #{riderId}, status = 3, accept_time = NOW() WHERE id = #{id} AND rider_id IS NULL AND status = 1")
+    int riderTakeOrder(@Param("id") String id, @Param("riderId") Integer riderId);
 
     @Select("SELECT * FROM `order` WHERE rider_id = #{riderId} AND status = 3")
     List<Order> selectCurrentByRiderId(Integer riderId);
@@ -55,6 +60,11 @@ public interface OrderMapper {
     @Select("SELECT COALESCE(SUM(pay_amount), 0) FROM `order` WHERE merchant_id = #{merchantId} AND status >= 1 AND status != 5")
     java.math.BigDecimal sumSalesByMerchantId(Integer merchantId);
 
-    @Update("UPDATE `order` SET status = 5, cancel_time = NOW() WHERE id = #{id}")
+    // 取消：待支付(0) 或 待接单(1) → 已取消(5)
+    @Update("UPDATE `order` SET status = 5, cancel_time = NOW() WHERE id = #{id} AND status IN (0, 1)")
     int cancelOrder(@Param("id") String id);
+
+    // 完成配送：配送中(3) → 已完成(4)
+    @Update("UPDATE `order` SET status = 4, finish_time = NOW() WHERE id = #{id} AND status = 3")
+    int completeOrder(@Param("id") String id);
 }

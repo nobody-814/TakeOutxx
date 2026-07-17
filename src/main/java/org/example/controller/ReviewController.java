@@ -23,7 +23,6 @@ public class ReviewController {
     @PostMapping("/submit")
     public Result submit(@RequestBody List<Review> reviews, @RequestParam String orderId) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         Order order = orderService.getOrderById(orderId);
         if (order == null) return Result.error("订单不存在");
         if (!order.getUserId().equals(user.getId())) return Result.error("无权评价");

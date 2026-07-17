@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 
 @RestController
 @RequestMapping("/takeout/user")
@@ -40,6 +41,7 @@ public class UserController {
         map.put("phone", loginUser.getPhoneNumber());
         map.put("address", loginUser.getAddress());
         return Result.success(map);
+
     }
 
     @PostMapping("/register")

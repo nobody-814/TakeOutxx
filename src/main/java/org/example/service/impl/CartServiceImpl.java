@@ -1,13 +1,14 @@
 package org.example.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import org.example.Common.CacheService;
 import org.example.domain.Cart;
 import org.example.domain.Product;
 import org.example.mapper.CartMapper;
 import org.example.mapper.ProductMapper;
 import org.example.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,29 +20,29 @@ import static org.example.Common.RedisConstant.CART_TTL;
 
 @Service
 public class CartServiceImpl implements CartService {
-    private final RedisTemplate redisTemplate;
+    private final StringRedisTemplate stringRedisTemplate;
+    private final CacheService cacheService;
 
     @Autowired
     private CartMapper cartMapper;
     @Autowired
     private ProductMapper productMapper;
 
-    public CartServiceImpl(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
+    public CartServiceImpl(StringRedisTemplate stringRedisTemplate,
+                           CacheService cacheService) {
+        this.stringRedisTemplate = stringRedisTemplate;
+        this.cacheService = cacheService;
     }
 
     @Override
     public void addCart(Cart cart) {
-        // 1. 入库获取 id
         cart.setId(null);
         cartMapper.insert(cart);
         Integer newId = cart.getId();
-        // 2. 补全商品信息
         if (cart.getProductId() != null) {
             Product p = productMapper.selectById(cart.getProductId());
             cart.setProduct(p);
         }
-        // 3. 同步 Redis 缓存
         String key = CART_KEY_PREFIX + cart.getUserId() + ":" + cart.getMerchantId();
         List<Cart> cartList = getCachedCart(cart.getUserId(), cart.getMerchantId());
         boolean exists = false;
@@ -56,33 +57,45 @@ public class CartServiceImpl implements CartService {
             cart.setId(newId);
             cartList.add(cart);
         }
-        redisTemplate.opsForValue().set(key, JSON.toJSONString(cartList), CART_TTL, TimeUnit.SECONDS);
+        stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(cartList), CART_TTL, TimeUnit.SECONDS);
     }
 
     private List<Cart> getCachedCart(Integer userId, Integer merchantId) {
         String key = CART_KEY_PREFIX + userId + ":" + merchantId;
-        Object val = redisTemplate.opsForValue().get(key);
-        if (val != null) {
-            return JSON.parseArray(val.toString(), Cart.class);
+        String json = stringRedisTemplate.opsForValue().get(key);
+        if (json != null) {
+            if ("empty_list".equals(json)) return new ArrayList<>();
+            return JSON.parseArray(json, Cart.class);
         }
         return new ArrayList<>();
     }
 
     @Override
     public List<Cart> getCartWithProduct(Integer userId, Integer merchantId) {
-        List<Cart> cached = getCachedCart(userId, merchantId);
-        if (!cached.isEmpty()) {
-            // 补全商品信息（缓存中没有 product 对象）
-            for (Cart c : cached) {
+        String key = CART_KEY_PREFIX + userId + ":" + merchantId;
+        String json = stringRedisTemplate.opsForValue().get(key);
+        if (json != null) {
+            if ("empty_list".equals(json)) return new ArrayList<>();
+            List<Cart> list = JSON.parseArray(json, Cart.class);
+            for (Cart c : list) {
                 if (c.getProduct() == null && c.getProductId() != null) {
                     c.setProduct(productMapper.selectById(c.getProductId()));
                 }
             }
-            return cached;
+            return list;
         }
-        List<Cart> list = cartMapper.selectCartWithProduct(userId, merchantId);
-        if (list == null) list = new ArrayList<>();
-        return list;
+        // cache miss, use CacheService with write-through
+        List<Cart> list = cacheService.queryListWithProtect(key, Cart.class,
+                () -> cartMapper.selectCartWithProduct(userId, merchantId),
+                CART_TTL, TimeUnit.SECONDS);
+        if (list != null) {
+            for (Cart c : list) {
+                if (c.getProduct() == null && c.getProductId() != null) {
+                    c.setProduct(productMapper.selectById(c.getProductId()));
+                }
+            }
+        }
+        return list != null ? list : new ArrayList<>();
     }
 
     @Override
@@ -103,12 +116,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public boolean clearCart(Integer userId, Integer merchantId) {
         String key = CART_KEY_PREFIX + userId + ":" + merchantId;
-        redisTemplate.delete(key);
-        // 同步清除 DB 中的购物车
-        List<Cart> cached = getCachedCart(userId, merchantId);
-        for (Cart c : cached) {
-            if (c.getId() != null) cartMapper.deleteById(c.getId());
-        }
+        stringRedisTemplate.delete(key);
         return cartMapper.clearCart(userId, merchantId) > 0;
     }
 }

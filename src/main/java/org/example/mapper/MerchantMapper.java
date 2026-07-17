@@ -36,12 +36,6 @@ public interface MerchantMapper {
     @Update("UPDATE merchant SET status = 3 WHERE id = #{id}")
     int banMerchant(long id);
 
-    @Select("SELECT * FROM merchant WHERE status != 3 LIMIT #{offset}, #{pageSize}")
-    List<Merchant> selectByPage(@Param("offset") int offset, @Param("pageSize") int pageSize);
-
-    @Update("UPDATE merchant SET rating = #{rating} WHERE id = #{id}")
-    int updateRatingOnly(@Param("id") Integer id, @Param("rating") Double rating);
-
-    @Update("UPDATE merchant SET review_count = review_count + 1 WHERE id = #{id}")
-    int incrementReviewCount(@Param("id") Integer id);
+    @Update("UPDATE merchant SET rating = (SELECT ROUND(AVG(rating), 1) FROM review WHERE merchant_id = #{id} AND type = 1), review_count = (SELECT COUNT(*) FROM review WHERE merchant_id = #{id} AND type = 1) WHERE id = #{id}")
+    int refreshRatingAndCount(@Param("id") Integer id);
 }

@@ -1,5 +1,6 @@
 package org.example.service.impl;
 
+import org.example.Common.CacheService;
 import org.example.domain.Merchant;
 import org.example.domain.User;
 import org.example.mapper.MerchantMapper;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -19,7 +22,8 @@ import static org.example.Common.RedisConstant.MERCHANT_TTL;
 
 @Service
 public class MerchantServiceImpl implements MerchantService {
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final CacheService cacheService;
 
     @Autowired
     private UserMapper userMapper;
@@ -27,8 +31,10 @@ public class MerchantServiceImpl implements MerchantService {
     @Autowired
     private MerchantMapper merchantMapper;
 
-    public MerchantServiceImpl(RedisTemplate redisTemplate) {
+    public MerchantServiceImpl(RedisTemplate<String, Object> redisTemplate,
+                               CacheService cacheService) {
         this.redisTemplate = redisTemplate;
+        this.cacheService = cacheService;
     }
 
     // ====================== 1. 创建商家（入驻） ======================
@@ -78,12 +84,9 @@ public class MerchantServiceImpl implements MerchantService {
     // ====================== 4. 获取所有有效商家（未被封禁） ======================
     @Override
     public List<Merchant> getAllValidMerchants() {
-        @SuppressWarnings("unchecked")
-        List<Merchant> cached = (List<Merchant>) redisTemplate.opsForValue().get(MERCHANT_LIST_KEY);
-        if (cached != null) return cached;
-        List<Merchant> list = merchantMapper.selectValid();
-        redisTemplate.opsForValue().set(MERCHANT_LIST_KEY, list, MERCHANT_TTL, TimeUnit.SECONDS);
-        return list;
+        return cacheService.queryListWithProtect(MERCHANT_LIST_KEY, Merchant.class,
+                () -> merchantMapper.selectValid(),
+                MERCHANT_TTL, TimeUnit.SECONDS);
     }
     /** 门店变更时清除缓存 */
     public void evictMerchantCache() {
@@ -126,12 +129,13 @@ public class MerchantServiceImpl implements MerchantService {
 
     // ====================== 8. 分页查询（已补齐） ======================
     @Override
-    public List<Merchant> getMerchantsByPage(Integer pageNum, Integer pageSize) {
+    public PageInfo<Merchant> getMerchantsByPage(Integer pageNum, Integer pageSize) {
         if (pageNum == null || pageNum < 1) pageNum = 1;
         if (pageSize == null || pageSize < 1) pageSize = 10;
 
-        int offset = (pageNum - 1) * pageSize;
-        return merchantMapper.selectByPage(offset, pageSize);
+        PageHelper.startPage(pageNum, pageSize);
+        List<Merchant> list = merchantMapper.selectValid();
+        return new PageInfo<>(list);
     }
 
     // ====================== 9. 更新店铺评分（完整校验） ======================

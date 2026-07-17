@@ -17,9 +17,6 @@ public interface ProductMapper {
     @Select("SELECT * FROM product WHERE id = #{id}")
     Product selectById(Integer id);
 
-    @Select("SELECT * FROM product WHERE id = #{id}")
-    Product selectByIdIncludeOffline(Integer id);
-
     @Select("SELECT * FROM product WHERE merchant_id = #{merchantId} AND status = 1 ORDER BY sales DESC")
     List<Product> selectByMerchantId(Integer merchantId);
 
@@ -39,9 +36,18 @@ public interface ProductMapper {
     @Update("UPDATE product SET sales = sales + 1 WHERE id = #{id}")
     int increaseSales(Integer id);
 
-    @Update("UPDATE product SET rating = #{rating} WHERE id = #{id}")
-    int updateRatingOnly(@Param("id") Integer id, @Param("rating") BigDecimal rating);
+    @Update("UPDATE product SET sales = sales + #{quantity} WHERE id = #{id}")
+    int increaseSalesByQuantity(@Param("id") Integer id, @Param("quantity") Integer quantity);
 
-    @Update("UPDATE product SET review_count = review_count + 1 WHERE id = #{id}")
-    int incrementReviewCount(@Param("id") Integer id);
+    @Update("UPDATE product SET stock = stock - #{quantity} WHERE id = #{id} AND stock >= #{quantity}")
+    int decreaseStock(@Param("id") Integer id, @Param("quantity") Integer quantity);
+
+    @Update("UPDATE product SET rating = (SELECT ROUND(AVG(rating), 1) FROM review WHERE product_id = #{id} AND type = 2), review_count = (SELECT COUNT(*) FROM review WHERE product_id = #{id} AND type = 2) WHERE id = #{id}")
+    int refreshRatingAndCount(@Param("id") Integer id);
+
+    @Update("UPDATE product SET name = #{name}, price = #{price}, original_price = #{originalPrice}, description = #{description}, stock = #{stock}, category_id = #{categoryId}, sort = #{sort} WHERE id = #{id}")
+    int updateProduct(Product product);
+
+    @Update("UPDATE product SET stock = stock + #{quantity}, sales = sales - #{quantity} WHERE id = #{id}")
+    int rollbackStock(@Param("id") Integer id, @Param("quantity") Integer quantity);
 }

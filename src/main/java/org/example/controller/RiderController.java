@@ -10,9 +10,6 @@ import org.example.service.OrderService;
 import org.example.service.RiderService;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 @RestController
 @RequestMapping("/takeout/rider")
 @CrossOrigin
@@ -27,7 +24,6 @@ public class RiderController {
     @PostMapping("/apply")
     public Result applyRider(@RequestBody Rider rider) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         rider.setUserId(user.getId());
         int res = riderService.addRider(rider);
         return res > 0
@@ -38,7 +34,6 @@ public class RiderController {
     @GetMapping("/info")
     public Result getSelfInfo() {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         Rider rider = riderService.getRiderByUserId(user.getId());
         return rider == null ? Result.error("当前账号不是骑手") : Result.success(rider);
     }
@@ -46,7 +41,6 @@ public class RiderController {
     @PostMapping("/status")
     public Result updateStatus(@RequestParam Integer status) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         Rider rider = riderService.getRiderByUserId(user.getId());
         if (rider == null) return Result.error("账号非骑手身份");
         boolean flag = riderService.changeStatus(rider.getId(), status);
@@ -61,7 +55,6 @@ public class RiderController {
     @PostMapping("/takeOrder")
     public Result takeOrder(@RequestParam String orderId) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         Rider rider = riderService.getRiderByUserId(user.getId());
         if (rider == null || rider.getStatus() != 1) return Result.error("仅在线骑手可接单");
         boolean takeSuccess = orderService.riderTakeOrder(orderId, rider.getId());
@@ -75,7 +68,6 @@ public class RiderController {
     @GetMapping("/orders/current")
     public Result getCurrentOrders() {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         Rider rider = riderService.getRiderByUserId(user.getId());
         if (rider == null) return Result.error("非骑手身份");
         return Result.success(orderService.getRiderCurrentOrders(rider.getId()));
@@ -84,7 +76,6 @@ public class RiderController {
     @PostMapping("/completeOrder")
     public Result completeOrder(@RequestParam String orderId) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         Rider rider = riderService.getRiderByUserId(user.getId());
         if (rider == null) return Result.error("非骑手身份");
         Order order = orderService.getOrderById(orderId);
@@ -97,15 +88,14 @@ public class RiderController {
     @GetMapping("/orders")
     public Result getRiderOrders() {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         Rider rider = riderService.getRiderByUserId(user.getId());
         if (rider == null) return Result.error("非骑手身份");
         return Result.success(orderService.getRiderOrders(rider.getId()));
     }
 
     @PostMapping("/rating")
-    public Result updateRating(@RequestParam Integer riderId, @RequestParam BigDecimal rating) {
+    public Result updateRating(@RequestParam Integer riderId, @RequestParam java.math.BigDecimal rating) {
         boolean flag = riderService.changeRating(riderId, rating);
-        return flag ? Result.success("评分更新成功") : Result.error("评分更新失败，评分范围0-5");
+        return flag ? Result.success("评分更新成功") : Result.error("评分更新失败，评分范围1-5");
     }
 }

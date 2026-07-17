@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.domain.Merchant;
+import com.github.pagehelper.PageInfo;
 import java.util.List;
 
 public interface MerchantService {
@@ -26,7 +27,7 @@ public interface MerchantService {
     List<Merchant> searchMerchants(String keyword);
 
     // 8. 分页查询店铺（支持消费者端分页加载）
-    List<Merchant> getMerchantsByPage(Integer pageNum, Integer pageSize);
+    PageInfo<Merchant> getMerchantsByPage(Integer pageNum, Integer pageSize);
 
     // 9. 更新店铺评分（订单完成后触发）
     boolean updateMerchantRating(Long id, Double newRating);

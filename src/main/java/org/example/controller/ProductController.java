@@ -41,6 +41,29 @@ public class ProductController {
         }
     }
 
+    
+    @PutMapping("/update")
+    public Result updateProduct(@RequestBody Product product) {
+        User user = SecurityUtil.getCurrentUser();
+        if (user == null) return Result.error("请先登录");
+        Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
+        if (merchant == null) return Result.error("无权限");
+        Product existing = productService.getById(product.getId());
+        if (existing == null) return Result.error("商品不存在");
+        if (!existing.getMerchantId().equals(merchant.getId())) return Result.error("无权操作此商品");
+        if (product.getName() == null || product.getName().trim().isEmpty()) return Result.error("商品名称不能为空");
+        if (product.getPrice() == null) return Result.error("价格不能为空");
+        product.setMerchantId(merchant.getId());
+        try {
+            productService.updateProduct(product);
+            productServiceImpl.evictProductCache(merchant.getId());
+            productServiceImpl.evictProductDetailCache(product.getId());
+            return Result.success("商品更新成功");
+        } catch (Exception e) {
+            return Result.error("更新失败: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/detail/{id}")
     public Result getProductById(@PathVariable Integer id) {
         Product product = productService.getById(id);

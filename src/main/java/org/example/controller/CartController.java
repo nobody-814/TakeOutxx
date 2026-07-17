@@ -8,8 +8,6 @@ import org.example.domain.User;
 import org.example.service.CartService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/takeout/cart")
 @CrossOrigin
@@ -21,7 +19,6 @@ public class CartController {
     @PostMapping("/add")
     public Result add(@RequestBody Cart cart) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         cart.setUserId(user.getId());
         cartService.addCart(cart);
         return Result.success("加入购物车成功");
@@ -30,7 +27,6 @@ public class CartController {
     @GetMapping("/list/{merchantId}")
     public Result list(@PathVariable Integer merchantId) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         return Result.success(cartService.getCartWithProduct(user.getId(), merchantId));
     }
 
@@ -42,6 +38,7 @@ public class CartController {
 
     @PostMapping("/delete/{id}")
     public Result delete(@PathVariable Integer id) {
+        User user = SecurityUtil.getCurrentUser();
         cartService.deleteCart(id);
         return Result.success("删除成功");
     }
@@ -49,7 +46,6 @@ public class CartController {
     @PostMapping("/clear/{merchantId}")
     public Result clear(@PathVariable Integer merchantId) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         cartService.clearCart(user.getId(), merchantId);
         return Result.success("清空成功");
     }

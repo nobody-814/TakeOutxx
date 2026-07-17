@@ -3,7 +3,9 @@ package org.example.service.impl;
 import org.example.domain.Cart;
 import org.example.domain.Order;
 import org.example.domain.OrderItem;
+import org.example.mapper.OrderItemMapper;
 import org.example.mapper.OrderMapper;
+import org.example.mapper.ProductMapper;
 import org.example.mapper.RiderMapper;
 import org.example.service.CartService;
 import org.example.service.OrderItemService;
@@ -28,6 +30,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderItemService orderItemService;
+
+    @Autowired
+    private OrderItemMapper orderItemMapper;
+
+    @Autowired
+    private ProductMapper productMapper;
+
+    @Autowired
+    private ProductServiceImpl productServiceImpl;
 
     @Autowired
     private RiderMapper riderMapper;
@@ -70,13 +81,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public boolean updateOrderStatus(String id, Integer status) {
-        return orderMapper.updateStatus(id, status) > 0;
-    }
-
-    @Override
-    public boolean riderTakeOrder(String id, Integer riderId) {
-        orderMapper.bindRider(id, riderId);
-        return orderMapper.updateStatus(id, 3) > 0;
+        return orderMapper.updateStatus(id, status, status - 1) > 0;
     }
 
     @Override
@@ -86,6 +91,7 @@ public class OrderServiceImpl implements OrderService {
         if (cartList == null || cartList.isEmpty()) {
             throw new RuntimeException("购物车为空，无法下单");
         }
+
         String orderId = "ORD_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         orderInfo.setId(orderId);
         orderInfo.setUserId(userId);
@@ -95,7 +101,9 @@ public class OrderServiceImpl implements OrderService {
         if (orderInfo.getDiscountAmount() == null) {
             orderInfo.setDiscountAmount(BigDecimal.ZERO);
         }
+
         orderMapper.insert(orderInfo);
+
         for (Cart cart : cartList) {
             OrderItem item = new OrderItem();
             item.setOrderId(orderId);
@@ -103,18 +111,27 @@ public class OrderServiceImpl implements OrderService {
             item.setProductName(cart.getProduct().getName());
             item.setProductPrice(cart.getProduct().getPrice());
             item.setQuantity(cart.getQuantity());
-            BigDecimal itemTotal = cart.getProduct().getPrice()
-                    .multiply(new BigDecimal(cart.getQuantity()));
-            item.setTotalPrice(itemTotal);
+            item.setTotalPrice(cart.getProduct().getPrice()
+                    .multiply(new BigDecimal(cart.getQuantity())));
             orderItemService.addOrderItem(item);
         }
+
         cartService.clearCart(userId, merchantId);
         return orderId;
     }
 
     @Override
     public boolean payOrder(String id) {
-        orderMapper.updateStatus(id, 1);
+        int rows = orderMapper.payOrder(id);
+        if (rows == 0) throw new RuntimeException("订单状态异常，无法支付");
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean riderTakeOrder(String id, Integer riderId) {
+        int rows = orderMapper.riderTakeOrder(id, riderId);
+        if (rows == 0) throw new RuntimeException("该订单已被其他骑手抢走");
         return true;
     }
 
@@ -125,11 +142,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public boolean completeOrder(String id) {
-        Order order = orderMapper.selectById(id);
-        if (order != null && order.getRiderId() != null) {
-            riderMapper.updateStatus(order.getRiderId(), 1);
-        }
-        return orderMapper.updateStatus(id, 4) > 0;
+        int rows = orderMapper.completeOrder(id);
+        if (rows == 0) throw new RuntimeException("订单状态异常，无法完成");
+        return true;
     }
 
     @Override
@@ -153,7 +168,23 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean cancelOrder(String id) {
-        return orderMapper.cancelOrder(id) > 0;
+        int rows = orderMapper.cancelOrder(id);
+        if (rows == 0) throw new RuntimeException("当前状态不可取消");
+        // 回滚库存和销量
+        List<OrderItem> items = orderItemMapper.selectByOrderId(id);
+        if (items != null) {
+            for (OrderItem item : items) {
+                productMapper.rollbackStock(item.getProductId(), item.getQuantity());
+                productServiceImpl.evictProductDetailCache(item.getProductId());
+            }
+        }
+        // 清除商品列表缓存
+        Order order = orderMapper.selectById(id);
+        if (order != null) {
+            productServiceImpl.evictProductCache(order.getMerchantId());
+        }
+        return true;
     }
 }

@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -16,9 +16,10 @@
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #E0E0E0; color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+        #app { max-width: 480px; min-height: 100vh; margin: 0 auto; background: var(--bg); position: relative; padding-bottom: 60px; box-shadow: 0 0 30px rgba(0,0,0,0.15); }
         .login-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #FF6B35 0%, #F39C12 50%, #FF6B35 100%); padding: 20px; }
-        .login-bg-pattern { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.08) 0%, transparent 50%); pointer-events: none; }
+        .login-bg-pattern { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.08) 0%, transparent 50%); pointer-events: none; }
         .login-card { position: relative; z-index: 1; width: 100%; max-width: 410px; background: var(--card); border-radius: 20px; padding: 40px 32px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); animation: slideUp 0.5s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .login-logo { text-align: center; margin-bottom: 12px; font-size: 48px; }
@@ -42,7 +43,7 @@
         .register-tip { text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-secondary); }
         .link { color: var(--primary); cursor: pointer; font-weight: 600; }
         .link:hover { text-decoration: underline; }
-        .modal-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); display: flex; justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; }
+        .modal-mask { position: fixed; top: 0; left: 50%; transform: translateX(-50%); max-width: 480px; width: 100%; height: 100%; background: rgba(0,0,0,0.45); display: flex; justify-content: center; align-items: center; z-index: 1000; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-box { background: var(--card); width: 92%; max-width: 460px; border-radius: var(--radius); padding: 28px 24px; max-height: 85vh; overflow-y: auto; animation: scaleIn 0.25s ease-out; }
         @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -59,7 +60,7 @@
         .tag-consumer { background: #E8F5E9; color: #2ECC71; }
         .tag-merchant { background: #FFF3E0; color: #FF6B35; }
         .tag-rider { background: #E3F2FD; color: #3498DB; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: var(--card); display: flex; box-shadow: 0 -1px 8px rgba(0,0,0,0.06); border-top: 1px solid var(--border); }
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); max-width: 480px; width: 100%; z-index: 100; background: var(--card); display: flex; box-shadow: 0 -1px 8px rgba(0,0,0,0.06); border-top: 1px solid var(--border); }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 0 6px; cursor: pointer; transition: var(--transition); color: var(--text-secondary); font-size: 11px; gap: 3px; user-select: none; text-decoration: none; }
         .nav-item .nav-icon { font-size: 22px; line-height: 1; }
         .nav-item.active { color: var(--primary); }
@@ -103,7 +104,7 @@
         .product-sales { font-size: 11px; color: var(--text-secondary); }
         .add-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #fff; border: none; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); flex-shrink: 0; line-height: 1; }
         .add-btn:hover { transform: scale(1.1); background: var(--primary-dark); }
-        .cart-float { position: fixed; bottom: 72px; right: 20px; z-index: 99; width: 56px; height: 56px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(255,107,53,0.35); cursor: pointer; transition: var(--transition); font-size: 24px; }
+        .cart-float { position: fixed; bottom: 72px; right: calc(50% - 240px + 20px); z-index: 99; width: 56px; height: 56px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(255,107,53,0.35); cursor: pointer; transition: var(--transition); font-size: 24px; }
         .cart-float:hover { transform: scale(1.08); }
         .cart-badge { position: absolute; top: -2px; right: -2px; background: var(--danger); color: #fff; font-size: 11px; min-width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; padding: 0 5px; }
         .order-card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow); transition: var(--transition); cursor: pointer; }
@@ -134,7 +135,7 @@
         .prod-manage-price { font-size: 16px; font-weight: 700; color: var(--primary); }
         .prod-manage-actions { display: flex; gap: 8px; }
         .stars { color: var(--warning); font-size: 14px; letter-spacing: 1px; }
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; color: #fff; animation: toastIn 0.3s ease-out; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); max-width: 480px; z-index: 2000; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; color: #fff; animation: toastIn 0.3s ease-out; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
         @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         .toast-success { background: var(--success); } .toast-error { background: var(--danger); } .toast-info { background: var(--info); }
         .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
@@ -180,7 +181,10 @@
                 <div class="search-bar"><input v-model="searchKeyword" placeholder="🔍 搜索店铺..." @keyup.enter="searchShops"><button class="btn btn-primary btn-sm" @click="searchShops">搜索</button></div>
                 <div class="section-title">🏪 热门店铺</div>
                 <div class="shop-grid"><div class="shop-card" v-for="shop in shopList" :key="shop.id" @click="enterShop(shop)"><div class="shop-card-img">🏪</div><div class="shop-card-body"><div class="shop-card-name" v-text="shop.shopName"></div><div class="shop-card-addr" v-text="shop.address"></div><div class="shop-card-meta"><span class="shop-card-rating">⭐ {{ shop.rating || '5.0' }}</span><span :class="['shop-card-status',shop.status===1?'status-open':(shop.status===2?'status-rest':'status-closed')]" v-text="shop.status===1?'营业中':(shop.status===2?'休息中':'未营业')"></span></div></div></div></div>
-                <div class="empty-state" v-if="!shopList.length"><div class="empty-icon">🏪</div><p>暂无营业中的店铺</p></div></template>
+                <div class="empty-state" v-if="!shopList.length"><div class="empty-icon">🏪</div><p>暂无营业中的店铺</p></div>
+                <div v-if="shopList.length && shopPageNum &lt;= shopTotalPages" style="text-align:center;padding:16px"><button class="btn btn-primary btn-sm" @click="loadShops(false)" :disabled="shopLoadingMore">{{ shopLoadingMore ? '加载中...' : '加载更多' }}</button></div>
+                <div v-if="shopList.length && shopPageNum &gt; shopTotalPages && shopTotalPages &gt; 0" style="text-align:center;padding:12px;color:var(--text-light);font-size:12px">— 共 {{ shopTotal }} 家店铺，已全部加载 —</div>
+            </template>
             <template v-if="page==='shop'">
                 <button class="back-btn" @click="page='home';shopList=[];loadShops()">← 返回首页</button>
                 <div class="shop-header"><div class="shop-header-icon">🏪</div><div class="shop-header-info"><h2 v-text="currentShop?.shopName"></h2><p>⭐ {{ currentShop?.rating || '5.0' }} · {{ currentShop?.address }}</p></div></div>
@@ -190,7 +194,7 @@
                 <div class="product-list" v-if="productList.length">
                     <div class="product-item" v-for="prod in productList" :key="prod.id">
                         <div class="product-img">🍽️</div><div class="product-info"><div class="product-name" v-text="prod.name"></div><div class="product-desc" v-text="prod.description||'美味可口，值得品尝'"></div>
-                        <div class="product-price-row"><span class="product-price">¥{{ prod.price }}<span class="orig" v-if="prod.originalPrice&&prod.originalPrice>prod.price">¥{{ prod.originalPrice }}</span></span><span class="product-sales">已售 {{ prod.sales||0 }}</span><button class="add-btn" @click="addToCart(prod)">+</button></div></div></div></div>
+                        <div class="product-price-row"><span class="product-price">¥{{ prod.price }}<span class="orig" v-if="prod.originalPrice&&prod.originalPrice>prod.price">¥{{ prod.originalPrice }}</span></span><span class="product-sales">已售 {{ prod.sales||0 }}</span><button class="add-btn" @click="addToCart(prod)" v-if="prod.stock===undefined||prod.stock>0">+</button><span v-if="prod.stock!==undefined&&prod.stock<=0" style="color:var(--danger);font-size:12px;font-weight:600">已售罄</span></div></div></div></div>
                 <div class="empty-state" v-if="!productList.length"><div class="empty-icon">🍽️</div><p>该店铺暂无商品</p></div>
                 <div class="cart-float" v-if="cartList.length" @click="showCart=true"><span>🛒</span><span class="cart-badge" v-text="cartTotalCount"></span></div></template>
             <template v-if="page==='myorder'">
@@ -198,7 +202,7 @@
                 <div class="order-card" v-for="order in orderList" :key="order.id" @click="viewOrderDetail(order)">
                     <div class="order-card-header"><span class="order-shop">订单号: {{ order.id }}</span><span :class="['order-status','os-'+order.status]" v-text="orderStatusText(order.status)"></span></div>
                     <div class="order-card-body"><div>收件人: {{ order.receiver||'未填' }}</div><div>电话: {{ order.phone||'未填' }}</div><div>地址: {{ order.address }}</div></div>
-                    <div class="order-card-footer"><span class="order-amount">¥{{ order.payAmount||order.totalAmount }}</span><span class="order-time">{{ order.createdAt }}</span><button v-if="order.status===0" class="btn btn-success btn-sm" @click.stop="payOrder(order.id)" style="margin-left:8px">去支付</button><button v-if="order.status===4" class="btn btn-warning btn-sm" @click.stop="openReview(order)" style="margin-left:8px">评价</button></div></div>
+                    <div class="order-card-footer"><span class="order-amount">¥{{ order.payAmount||order.totalAmount }}</span><span class="order-time">{{ order.createdAt }}</span><button v-if="order.status===0" class="btn btn-success btn-sm" @click.stop="payOrder(order.id)" style="margin-left:8px">去支付</button><button v-if="order.status===0" class="btn btn-danger btn-sm" @click.stop="cancelOrder(order.id)" style="margin-left:4px">取消</button><button v-if="order.status===1" class="btn btn-danger btn-sm" @click.stop="cancelOrder(order.id)" style="margin-left:8px">取消订单</button><button v-if="order.status===4&&!reviewedOrderIds.includes(order.id)" class="btn btn-warning btn-sm" @click.stop="openReview(order)" style="margin-left:8px">评价</button><span v-if="order.status===4&&reviewedOrderIds.includes(order.id)" style="color:var(--success);font-size:12px;font-weight:600;margin-left:8px">✅ 已评价</span></div></div>
                 <div class="empty-state" v-if="!orderLoading&&!orderList.length"><div class="empty-icon">📋</div><p>暂无订单</p></div></template>
             <template v-if="page==='profile'">
                 <div class="section-title">👤 个人中心</div>
@@ -247,21 +251,16 @@
                 <div class="section-title">📦 商品管理</div>
                 <div class="category-tabs" v-if="categoryList.length">
                     <button :class="['cat-tab',selectedCategory===null?'active':'']" @click="selectedCategory=null;loadManageProducts()">全部</button>
-                    <button v-for="cat in categoryList" :key="cat.id" :class="['cat-tab',selectedCategory===cat.id?'active':'']" @click="selectedCategory=cat.id;loadManageProductsByCategory(cat.id)" v-text="cat.name"></button></div>
+                    <template v-for="cat in categoryList" :key="cat.id"><button :class="['cat-tab',selectedCategory===cat.id?'active':'']" @click="selectedCategory=cat.id;loadManageProductsByCategory(cat.id)" v-text="cat.name"></button><span @click.stop="deleteCategory(cat)" style="cursor:pointer;margin-left:2px;color:var(--danger);font-size:12px;flex-shrink:0" title="删除分类">✕</span></template></div>
                 <div class="prod-manage-item" v-for="prod in productList" :key="prod.id">
                     <div class="prod-manage-info"><h4 v-text="prod.name"></h4><p>销量: {{ prod.sales||0 }} · 库存: {{ prod.stock||0 }} · {{ prod.status===1?'上架中':'已下架' }}</p></div>
                     <div class="prod-manage-price">¥{{ prod.price }}</div>
-                    <div class="prod-manage-actions"><button class="btn btn-sm" :class="prod.status===1?'btn-warning':'btn-success'" @click="toggleProductStatus(prod)">{{ prod.status===1?'下架':'上架' }}</button><button class="btn btn-sm btn-danger" @click="deleteProduct(prod.id)">删除</button></div></div>
-                <div class="empty-state" v-if="!productList.length"><div class="empty-icon">📦</div><p>暂无商品，请添加</p></div>
-                <div class="section-title" style="margin-top:24px">📋 店铺订单</div>
-                <div class="order-card" v-for="order in orderList" :key="order.id">
-                    <div class="order-card-header"><span class="order-shop">订单: {{ order.id }}</span><span :class="['order-status','os-'+order.status]" v-text="orderStatusText(order.status)"></span></div>
-                    <div class="order-card-body"><div>客户: {{ order.receiver }} · {{ order.phone }}</div><div>地址: {{ order.address }}</div></div>
-                    <div class="order-card-footer"><span class="order-amount">¥{{ order.payAmount||order.totalAmount }}</span><button class="btn btn-success btn-sm" v-if="order.status===1" @click="acceptOrder(order.id)">接单</button><span class="order-time">{{ order.createdAt }}</span></div></div></template></div>
-        <template v-if="page==='merchantOrders'&&merchantInfo"><div class="section-title">📋 订单历史</div><div class="order-card" v-for="order in orderList" :key="order.id"><div class="order-card-header"><span class="order-shop">订单: {{ order.id }}</span><span :class="['order-status','os-'+order.status]" v-text="orderStatusText(order.status)"></span></div><div class="order-card-body"><div>客户: {{ order.receiver }} · {{ order.phone }}</div><div>地址: {{ order.address }}</div><div>金额: ¥{{ order.payAmount||order.totalAmount }}</div></div><div class="order-card-footer"><span class="order-time">{{ order.createdAt }}</span><button class="btn btn-info btn-sm" @click="viewOrderDetail(order)">详情</button></div></div><div class="empty-state" v-if="!orderList.length"><div class="empty-icon">📋</div><p>暂无订单</p></div></template>
+                    <div class="prod-manage-actions"><button class="btn btn-sm" :class="prod.status===1?'btn-warning':'btn-success'" @click="toggleProductStatus(prod)">{{ prod.status===1?'下架':'上架' }}</button><button class="btn btn-sm btn-info" @click="openEditProduct(prod)">编辑</button><button class="btn btn-sm btn-danger" @click="deleteProduct(prod.id)">删除</button></div></div>
+            </template></div>
+        <template v-if="page==='merchantOrders'&&merchantInfo"><div class="section-title">📋 订单历史</div><div class="order-card" v-for="order in orderList" :key="order.id"><div class="order-card-header"><span class="order-shop">订单: {{ order.id }}</span><span :class="['order-status','os-'+order.status]" v-text="orderStatusText(order.status)"></span></div><div class="order-card-body"><div>客户: {{ order.receiver }} · {{ order.phone }}</div><div>地址: {{ order.address }}</div><div>金额: ¥{{ order.payAmount||order.totalAmount }}</div></div><div class="order-card-footer"><span class="order-time">{{ order.createdAt }}</span><button v-if="order.status===1" class="btn btn-success btn-sm" @click.stop="acceptMerchantOrder(order.id)" style="margin-right:4px">接单</button><button class="btn btn-info btn-sm" @click="viewOrderDetail(order)">详情</button></div></div><div class="empty-state" v-if="!orderList.length"><div class="empty-icon">📋</div><p>暂无订单</p></div></template>
         <div class="main-content" v-if="role===2">
             <template v-if="!riderInfo&&page!=='riderApply'"><div class="empty-state"><div class="empty-icon">🛵</div><p>您还不是骑手</p><button class="btn btn-primary btn-sm" style="margin-top:12px" @click="page='riderApply'">立即认证</button></div></template>
-            <template v-if="page==='riderApply'"><div class="section-title">🛵 骑手认证</div>
+            <template v-if="page==='riderApply'&&!riderInfo"><div class="section-title">🛵 骑手认证</div>
                 <div class="modal-box" style="margin:0 auto;box-shadow:var(--shadow)">
                     <div class="form-group"><label class="form-label">身份证号</label><input class="form-input" v-model="riderForm.idCard" placeholder="请输入身份证号"></div>
                     <div class="form-group"><label class="form-label">配送范围</label><input class="form-input" v-model="riderForm.deliveryScope" placeholder="如: 朝阳区建国路"></div>
@@ -279,10 +278,49 @@
                     <div class="order-card-body"><div>收件人: {{ order.receiver }} · {{ order.phone }}</div><div>地址: {{ order.address }}</div></div>
                     <div class="order-card-footer"><span class="order-amount">¥{{ order.payAmount||order.totalAmount }}</span><button class="btn btn-success btn-sm" @click="completeDelivery(order.id)">配送完成</button></div></div>
                 <div class="empty-state" v-if="!riderCurrentOrders.length&&!waitOrders.length"></div></template></div>
-        <template v-if="page==='riderHistory'&&riderInfo"><div class="section-title">📜 配送历史</div><div class="order-card" v-for="order in riderOrderList" :key="order.id"><div class="order-card-header"><span class="order-shop">订单: {{ order.id }}</span><span :class="['order-status','os-'+order.status]" v-text="orderStatusText(order.status)"></span></div><div class="order-card-body"><div>客户: {{ order.receiver }} · {{ order.phone }}</div><div>地址: {{ order.address }}</div></div><div class="order-card-footer"><span class="order-amount">¥{{ order.payAmount||order.totalAmount }}</span><button class="btn btn-info btn-sm" @click="viewOrderDetail(order)">详情</button></div></div><div class="empty-state" v-if="!riderOrderList.length"><div class="empty-icon">📜</div><p>暂无配送记录</p></div></template>
+        <template v-if="page==='riderHistory'&&riderInfo"><div class="section-title">📜 配送历史</div><div class="order-card" v-for="order in riderOrderList" :key="order.id"><div class="order-card-header"><span class="order-shop">订单: {{ order.id }}</span><span :class="['order-status','os-'+order.status]" v-text="orderStatusText(order.status)"></span></div><div class="order-card-body"><div>客户: {{ order.receiver }} · {{ order.phone }}</div><div>地址: {{ order.address }}</div></div><div class="order-card-footer"><span class="order-amount">¥{{ order.payAmount||order.totalAmount }}</span><button v-if="order.status===1" class="btn btn-success btn-sm" @click.stop="acceptMerchantOrder(order.id)" style="margin-right:4px">接单</button><button class="btn btn-info btn-sm" @click="viewOrderDetail(order)">详情</button></div></div><div class="empty-state" v-if="!riderOrderList.length"><div class="empty-icon">📜</div><p>暂无配送记录</p></div></template>
+        <template v-if="page==='riderProfile'&&riderInfo">
+            <div style="background:linear-gradient(135deg,#FF6B35,#F39C12);margin:-20px 0 0;padding:28px 20px 20px;color:#fff;text-align:center;border-radius:0">
+                <div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.2);display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:8px">🛵</div>
+                <div style="font-size:17px;font-weight:700">{{ userInfo.username }}</div>
+                <div style="font-size:11px;opacity:0.75;margin-top:2px">骑手 ID: {{ riderInfo.id }}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0">
+                <div style="background:var(--card);border-radius:12px;padding:12px 6px;text-align:center;box-shadow:var(--shadow)">
+                    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">⭐ 评分</div>
+                    <div style="font-size:20px;font-weight:700;color:var(--warning)">{{ riderInfo.rating||'5.0' }}</div>
+                </div>
+                <div style="background:var(--card);border-radius:12px;padding:12px 6px;text-align:center;box-shadow:var(--shadow)">
+                    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">📦 总配送</div>
+                    <div style="font-size:20px;font-weight:700;color:var(--primary)" v-text="riderOrderList.length"></div>
+                </div>
+                <div style="background:var(--card);border-radius:12px;padding:12px 6px;text-align:center;box-shadow:var(--shadow)">
+                    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">💬 评价</div>
+                    <div style="font-size:20px;font-weight:700;color:var(--success)">{{ riderInfo.reviewCount||0 }}</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+                <button class="btn btn-success" style="flex:1;padding:10px;font-size:14px" v-if="riderInfo.status!==1" @click="changeRiderStatus(1)">🔛 上线接单</button>
+                <button class="btn btn-warning" style="flex:1;padding:10px;font-size:14px" v-if="riderInfo.status===1" @click="changeRiderStatus(0)">⏸ 下线休息</button>
+            </div>
+            <div style="background:var(--card);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)">
+                <div style="display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)">
+                    <span style="font-size:15px;margin-right:12px">🆔</span><span style="color:var(--text-secondary);font-size:13px;width:56px">身份证</span><span style="flex:1;text-align:right;font-size:14px">{{ riderInfo.idCard }}</span>
+                </div>
+                <div style="display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)">
+                    <span style="font-size:15px;margin-right:12px">📍</span><span style="color:var(--text-secondary);font-size:13px;width:56px">范围</span><span style="flex:1;text-align:right;font-size:14px">{{ riderInfo.deliveryScope }}</span>
+                </div>
+                <div style="display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)">
+                    <span style="font-size:15px;margin-right:12px">📱</span><span style="color:var(--text-secondary);font-size:13px;width:56px">手机号</span><span style="flex:1;text-align:right;font-size:14px">{{ userInfo.phone }}</span>
+                </div>
+                <div style="display:flex;align-items:center;padding:14px 16px">
+                    <span style="font-size:15px;margin-right:12px" v-text="riderInfo.status===1?'🟢':(riderInfo.status===2?'🔵':'⚫')"></span><span style="color:var(--text-secondary);font-size:13px;width:56px">状态</span><span style="flex:1;text-align:right;font-size:14px;font-weight:600" v-text="riderInfo.status===0?'离线':(riderInfo.status===1?'在线可接单':'配送中')"></span>
+                </div>
+            </div>
+        </template>
         <div class="bottom-nav" v-if="role===0"><div :class="['nav-item',page==='home'?'active':'']" @click="page='home';shopList=[];loadShops()"><span class="nav-icon">🏠</span><span>首页</span></div><div :class="['nav-item',page==='myorder'?'active':'']" @click="page='myorder';loadMyOrders()"><span class="nav-icon">📋</span><span>订单</span></div><div :class="['nav-item',page==='profile'?'active':'']" @click="page='profile';loadProfile()"><span class="nav-icon">👤</span><span>我的</span></div></div>
         <div class="bottom-nav" v-if="role===1&&merchantInfo"><div :class="['nav-item',page==='merchantHome'?'active':'']" @click="page='merchantHome';loadManageProducts();loadCategoryList();loadMerchantOrders();loadMerchantStats()"><span class="nav-icon">🏪</span><span>管理</span></div><div :class="['nav-item',page==='merchantOrders'?'active':'']" @click="page='merchantOrders';loadMerchantOrders()"><span class="nav-icon">📋</span><span>订单</span></div><div :class="['nav-item',page==='merchantInfo'?'active':'']" @click="page='merchantInfo'"><span class="nav-icon">⚙️</span><span>设置</span></div></div>
-        <div class="bottom-nav" v-if="role===2&&riderInfo"><div :class="['nav-item',page==='pendingOrders'?'active':'']" @click="page='pendingOrders';loadWaitOrders();loadRiderCurrent()"><span class="nav-icon">📋</span><span>接单</span></div><div :class="['nav-item',page==='riderHistory'?'active':'']" @click="page='riderHistory';loadRiderOrders()"><span class="nav-icon">📜</span><span>历史</span></div><div :class="['nav-item',page==='riderApply'?'active':'']" @click="page='riderApply'"><span class="nav-icon">🛵</span><span>我的</span></div></div>
+        <div class="bottom-nav" v-if="role===2&&riderInfo"><div :class="['nav-item',page==='pendingOrders'?'active':'']" @click="page='pendingOrders';loadWaitOrders();loadRiderCurrent()"><span class="nav-icon">📋</span><span>接单</span></div><div :class="['nav-item',page==='riderHistory'?'active':'']" @click="page='riderHistory';loadRiderOrders()"><span class="nav-icon">📜</span><span>历史</span></div><div :class="['nav-item',page==='riderProfile'?'active':'']" @click="page='riderProfile';loadRiderInfo()"><span class="nav-icon">🛵</span><span>我的</span></div></div>
         <div class="modal-mask" v-if="showCart" @click.self="showCart=false"><div class="modal-box"><div class="modal-header"><span class="modal-title">🛒 购物车</span><button class="modal-close" @click="showCart=false">&times;</button></div>
             <div v-if="cartList.length"><div v-for="item in cartList" :key="item.id" style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span style="font-weight:600">{{ item.product?.name||'商品' }}</span><span>¥{{ item.product?.price||0 }} &times; {{ item.quantity }}</span><button class="btn btn-danger btn-sm" @click="removeCart(item.id)">删除</button></div>
                 <div style="padding:14px 0;text-align:right"><span style="font-size:18px;font-weight:700;color:var(--primary)">合计: ¥{{ cartTotal }}</span></div><button class="btn btn-primary" @click="submitOrder">提交订单</button></div>
@@ -311,7 +349,7 @@
             <div class="form-group"><label class="form-label">库存（0=无限）</label><input class="form-input" type="number" v-model="productForm.stock" value="0"></div>
             <button class="btn btn-primary" @click="addProduct">确认添加</button></div></div>
 
-        <div class="modal-mask" v-if="showReview" @click.self="showReview=false"><div class="modal-box"><div class="modal-header"><span class="modal-title">⭐ 评价</span><button class="modal-close" @click="showReview=false">&times;</button></div>
+        <div class="modal-mask" v-if="showEditProduct" @click.self="showEditProduct=false"><div class="modal-box"><div class="modal-header"><span class="modal-title">✏️ 编辑商品</span><button class="modal-close" @click="showEditProduct=false">&times;</button></div><div class="form-group"><label class="form-label">商品名称</label><input class="form-input" v-model="editForm.name" placeholder="商品名称"></div><div class="form-group"><label class="form-label">售价</label><input class="form-input" type="number" step="0.01" v-model="editForm.price" placeholder="售价"></div><div class="form-group"><label class="form-label">原价（可选）</label><input class="form-input" type="number" step="0.01" v-model="editForm.originalPrice" placeholder="留空则不显示折扣"></div><div class="form-group"><label class="form-label">描述</label><input class="form-input" v-model="editForm.description" placeholder="商品描述"></div><div class="form-group"><label class="form-label">分类</label><select class="form-input" v-model="editForm.categoryId"><option :value="null">请选择分类</option><option v-for="cat in categoryList" :key="cat.id" :value="cat.id" v-text="cat.name"></option></select></div><div class="form-group"><label class="form-label">库存（0=无限）</label><input class="form-input" type="number" v-model="editForm.stock"></div><button class="btn btn-primary" @click="updateProduct">确认修改</button></div></div><div class="modal-mask" v-if="showReview" @click.self="showReview=false"><div class="modal-box"><div class="modal-header"><span class="modal-title">⭐ 评价</span><button class="modal-close" @click="showReview=false">&times;</button></div>
             <div class="form-group"><label class="form-label">商家评分</label><div><span v-for="s in 5" :key="'ms'+s" style="font-size:24px;cursor:pointer" @click="reviewForm.merchantRating=s" v-text="s<=reviewForm.merchantRating?'★':'☆'"></span></div></div>
             <div class="form-group"><label class="form-label">骑手评分</label><div><span v-for="s in 5" :key="'rs'+s" style="font-size:24px;cursor:pointer" @click="reviewForm.riderRating=s" v-text="s<=reviewForm.riderRating?'★':'☆'"></span></div></div>
             <div class="form-group"><label class="form-label">评价内容</label><textarea class="form-input" v-model="reviewForm.content" rows="3" placeholder="写下您的评价..."></textarea></div>
@@ -328,14 +366,14 @@ createApp({
             registerForm: { username: '', phone: '', password: '' },
             toast: { show: false, msg: '', type: 'info' }, toastKey: 0,
             page: 'home',
-            shopList: [], searchKeyword: '', currentShop: null, currentShopId: null,
+            shopList: [], shopPageNum: 1, shopPageSize: 10, shopTotalPages: 0, shopTotal: 0, shopLoadingMore: false, searchKeyword: '', currentShop: null, currentShopId: null,
             categoryList: [], selectedCategory: null, categoryCount: 0,
-            categoryForm: { name: '', sort: 0 }, showAddCategory: false, submitting: false,
+            categoryForm: { name: '', sort: 0 }, showAddCategory: false, submitting: false, reviewedOrderIds: [],
             productList: [],
             productForm: { name: '', price: '', originalPrice: '', description: '', categoryId: null, stock: 0 },
-            showAddProduct: false, showReview: false, reviewOrder: null, reviewForm: { merchantRating: 5, riderRating: 5, content: "" },
+            showAddProduct: false, showEditProduct: false, editForm: { id: null, name: "", price: "", originalPrice: "", description: "", categoryId: null, stock: 0 }, showReview: false, reviewOrder: null, reviewForm: { merchantRating: 5, riderRating: 5, content: "" },
             cartList: [], showCart: false,
-            orderList: [], orderLoading: false, showOrderDetail: false, detailOrder: null, orderItems: [], waitOrders: [],
+            orderList: [], orderLoading: false, showOrderDetail: false, detailOrder: null, orderItems: [], waitOrders: [], riderCurrentOrders: [],
             merchantInfo: null, merchantForm: { shopName: '', address: '', businessHours: '' },
             merchantStats: { totalSales: 0, orderCount: 0 },
             riderInfo: null, riderForm: { idCard: '', deliveryScope: '' },
@@ -349,9 +387,9 @@ createApp({
     },
     methods: {
         toastMsg(msg, type) { this.toastKey++; this.toast = { show: true, msg, type }; setTimeout(() => { this.toast.show = false; }, 2500); },
-        async api(url, opts) { try { const BASE_URL = 'http://localhost:8080'; if (!opts) opts = {}; if (!opts.headers) opts.headers = {}; if (!opts.headers['Content-Type'] && !opts.headers['content-type']) opts.headers['Content-Type'] = 'application/json'; const token = localStorage.getItem('token'); if (token && !opts.headers['token']) opts.headers['token'] = token; const res = await fetch(BASE_URL + '/takeout' + url, opts); if (!res.ok) { const errText = await res.text().catch(()=>''); console.error('HTTP ' + res.status + ': ' + errText.substring(0,200)); return { code: res.status, msg: '服务器错误(' + res.status + ')' }; } const txt = await res.text(); try { return JSON.parse(txt); } catch(e) { console.error('JSON parse error:', txt.substring(0,200)); return { code: -2, msg: '响应格式异常' }; } } catch(e) { console.error('Fetch error: ' + e.message + ' url=' + url); return { code: -1, msg: '网络错误: ' + e.message }; } },
+        async api(url, opts) { try { const BASE_URL = 'http://localhost:8080'; if (!opts) opts = {}; if (!opts.headers) opts.headers = {}; if (!opts.headers['Content-Type'] && !opts.headers['content-type']) opts.headers['Content-Type'] = 'application/json'; const token = localStorage.getItem('token'); if (token && !opts.headers['token']) opts.headers['token'] = token; const res = await fetch(BASE_URL + '/takeout' + url, opts); if (!res.ok) { const errText = await res.text().catch(()=>''); console.error('HTTP ' + res.status + ': ' + errText.substring(0,200)); if (res.status === 401) return { code: 401, msg: '请先登录' }; return { code: res.status, msg: '服务器错误(' + res.status + ')' }; } const txt = await res.text(); try { return JSON.parse(txt); } catch(e) { console.error('JSON parse error:', txt.substring(0,200)); return { code: -2, msg: '响应格式异常' }; } } catch(e) { console.error('Fetch error: ' + e.message + ' url=' + url); return { code: -1, msg: '网络错误: ' + e.message }; } },
         getHeaders() { const token = localStorage.getItem('token'); return token ? { 'token': token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' }; },
-        orderStatusText(s) { const m = { 0: '待支付', 1: '待接单', 2: '已接单', 3: '配送中', 4: '已送达', 5: '已取消' }; return m[s] || '未知'; },
+        orderStatusText(s) { const m = { 0: '待支付', 1: '待接单', 2: '商户已接单', 3: '配送中', 4: '已完成', 5: '已取消' }; return m[s] || '未知'; },
         async doLogin() {
             if (!this.loginForm.account || !this.loginForm.password) return this.toastMsg('请填写账号和密码', 'error');
             const res = await this.api('/user/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ account: this.loginForm.account, password: this.loginForm.password }) });
@@ -380,28 +418,37 @@ createApp({
             this.role = loginRes.data.role;
             localStorage.setItem('userInfo', JSON.stringify(this.userInfo));
             const mRes = await this.api('/merchant/create', { method: 'POST', headers: this.getHeaders(), body: JSON.stringify(this.merchantForm) });
-            if (mRes.code === 200) { this.toastMsg('入驻成功!', 'success'); this.page = 'merchantHome'; this.loadMerchantInfo(); }
+            if (mRes.code === 200) { this.toastMsg('入驻成功！请重新登录以激活商家身份', 'success'); localStorage.clear(); this.userInfo = null; this.role = -1; this.page = 'home'; }
             else this.toastMsg(mRes.msg || '入驻失败', 'error');
         },
         async loadProfile() { const res = await this.api('/user/profile', { headers: this.getHeaders() }); if (res.code === 200 && res.data) { this.userInfo.username = res.data.username || ''; this.userInfo.phone = res.data.phone || ''; this.userInfo.address = res.data.address || ''; this.profileForm = { username: res.data.username || '', phone: res.data.phone || '', address: res.data.address || '' }; localStorage.setItem('userInfo', JSON.stringify(this.userInfo)); } },
         async updateProfile() { if (!this.profileForm.phone || !this.profileForm.phone.match(/^1[3-9]\d{9}$/)) return this.toastMsg('请输入正确的11位手机号', 'error'); const res = await this.api('/user/updateInfo', { method: 'POST', headers: this.getHeaders(), body: JSON.stringify({ username: this.profileForm.username, phoneNumber: this.profileForm.phone, address: this.profileForm.address }) }); if (res.code === 200) { this.toastMsg('保存成功', 'success'); this.userInfo.username = this.profileForm.username; this.userInfo.phone = this.profileForm.phone; this.userInfo.address = this.profileForm.address; localStorage.setItem('userInfo', JSON.stringify(this.userInfo)); } else this.toastMsg(res.msg || '保存失败', 'error'); },
         async loadMerchantStats() { const res = await this.api('/order/merchant/stats', { headers: this.getHeaders() }); if (res.code === 200) this.merchantStats = res.data || { totalSales: 0, orderCount: 0 }; },
-        async payOrder(orderId) { const res = await this.api('/order/pay/' + orderId, { method: 'POST', headers: this.getHeaders() }); if (res.code === 200) { this.toastMsg('支付成功', 'success'); this.loadMyOrders(); } else this.toastMsg(res.msg || '支付失败', 'error'); },
+        async payOrder(orderId) { const res = await this.api('/order/pay/' + orderId, { method: 'POST', headers: this.getHeaders() }); if (res.code === 200) { this.toastMsg('支付成功', 'success'); this.loadMyOrders(); } else this.toastMsg(res.msg || '支付失败', 'error'); }, async cancelOrder(orderId) { if (!confirm('确定取消该订单？')) return; const res = await this.api('/order/cancel/' + orderId, { method: 'POST', headers: this.getHeaders() }); if (res.code === 200) { this.toastMsg('订单已取消', 'success'); this.loadMyOrders(); this.loadShops(); if (this.merchantInfo) { this.loadMerchantOrders(); this.loadManageProducts(); } } else this.toastMsg(res.msg || '取消失败', 'error'); }, async acceptMerchantOrder(orderId) { const res = await this.api('/order/updateStatus?id=' + orderId + '&status=2', { method: 'POST', headers: this.getHeaders() }); if (res.code === 200) { this.toastMsg('已接单', 'success'); this.loadMerchantOrders(); } else this.toastMsg(res.msg || '操作失败', 'error'); },
         logout() { localStorage.clear(); this.userInfo = null; this.role = -1; this.page = 'home'; this.cartList = []; this.shopList = []; this.merchantInfo = null; this.riderInfo = null; },
         afterLogin() { if (this.role === 0) { this.page = 'home'; this.loadShops(); } else if (this.role === 1) { this.page = 'merchantHome'; this.loadMerchantInfo(); } else if (this.role === 2) { this.page = 'pendingOrders'; this.loadRiderInfo(); } },
-        async loadShops() { const res = await this.api('/merchant/validList'); if (res.code === 200) this.shopList = res.data || []; },
-        async searchShops() { if (!this.searchKeyword.trim()) return this.loadShops(); const res = await this.api('/merchant/search?keyword=' + encodeURIComponent(this.searchKeyword)); if (res.code === 200) this.shopList = res.data || []; },
+        async loadShops(reset = true) { if (reset) { this.shopPageNum = 1; this.shopList = []; this.shopTotalPages = 0; } if (this.shopLoadingMore) return; this.shopLoadingMore = true; const res = await this.api('/merchant/page?pageNum=' + this.shopPageNum + '&pageSize=' + this.shopPageSize); this.shopLoadingMore = false; if (res.code === 200 && res.data) { const pageData = res.data; const newList = pageData.list || []; if (reset) { this.shopList = newList; } else { this.shopList = this.shopList.concat(newList); } this.shopTotalPages = pageData.pages || 0; this.shopTotal = pageData.total || 0; this.shopPageNum++; } },
+        async searchShops() { if (!this.searchKeyword.trim()) return this.loadShops(true); const res = await this.api('/merchant/search?keyword=' + encodeURIComponent(this.searchKeyword)); if (res.code === 200) { this.shopList = res.data || []; this.shopTotalPages = 0; } },
         enterShop(shop) { this.currentShop = shop; this.currentShopId = shop.id; this.selectedCategory = null; this.page = 'shop'; this.loadProducts(); this.loadCategoryList(); this.loadCart(); },
         async loadCategoryList() { if (!this.currentShopId && this.merchantInfo) this.currentShopId = this.merchantInfo.id; if (!this.currentShopId) return; const res = await this.api('/category/list/' + this.currentShopId); if (res.code === 200) { this.categoryList = res.data || []; this.categoryCount = this.categoryList.length; } else { console.error('加载分类失败: ' + (res.msg || res.code)); } },
         async addCategory() { if (this.submitting) return; if (!this.categoryForm.name.trim()) return this.toastMsg('请输入分类名称', 'error'); this.submitting = true; const res = await this.api('/category/add', { method: 'POST', headers: this.getHeaders(), body: JSON.stringify(this.categoryForm) }); this.submitting = false; if (res.code === 200) { this.toastMsg('分类添加成功', 'success'); this.showAddCategory = false; this.categoryForm = { name: '', sort: 0 }; this.loadCategoryList(); } else this.toastMsg(res.msg || '添加失败', 'error'); },
+        async deleteCategory(cat) {
+            if (!confirm('确定删除分类 "' + cat.name + '" 吗？')) return;
+            const res = await this.api('/category/delete/' + cat.id, { method: 'DELETE', headers: this.getHeaders() });
+            if (res.code === 200) {
+                this.toastMsg('分类已删除', 'success');
+                if (this.selectedCategory === cat.id) this.selectedCategory = null;
+                this.loadCategoryList(); this.loadManageProducts();
+            } else this.toastMsg(res.msg || '删除失败', 'error');
+        },
         async loadProducts() { if (!this.currentShopId) return; const res = await this.api('/product/list/' + this.currentShopId); if (res.code === 200) this.productList = res.data || []; },
         async loadProductsByCategory(catId) { if (!this.currentShopId) return; const res = await this.api('/product/listByCategory?merchantId=' + this.currentShopId + '&categoryId=' + catId); if (res.code === 200) this.productList = res.data || []; },
         async loadManageProducts() { if (!this.merchantInfo) return; this.currentShopId = this.merchantInfo.id; if (this.selectedCategory) { await this.loadManageProductsByCategory(this.selectedCategory); } else { const res = await this.api('/product/manageList/' + this.merchantInfo.id); if (res.code === 200) this.productList = res.data || []; } },
         async loadManageProductsByCategory(catId) { if (!this.merchantInfo) return; const res = await this.api('/product/listByCategory?merchantId=' + this.merchantInfo.id + '&categoryId=' + catId); if (res.code === 200) this.productList = res.data || []; },
         async addProduct() { if (this.submitting) return; if (!this.productForm.name || !this.productForm.price) return this.toastMsg('请填写商品名称和价格', 'error'); if (!this.productForm.categoryId) return this.toastMsg('请选择分类', 'error'); this.submitting = true; const res = await this.api('/product/add', { method: 'POST', headers: this.getHeaders(), body: JSON.stringify(this.productForm) }); this.submitting = false; if (res.code === 200) { this.toastMsg('添加成功', 'success'); this.showAddProduct = false; this.productForm = { name: '', price: '', originalPrice: '', description: '', categoryId: null, stock: 0 }; this.loadManageProducts(); } else this.toastMsg(res.msg || '添加失败', 'error'); },
-        async toggleProductStatus(prod) { const ns = prod.status === 1 ? 0 : 1; const res = await this.api('/product/updateStatus?id=' + prod.id + '&status=' + ns, { method: 'POST', headers: this.getHeaders() }); if (res.code === 200) { this.toastMsg('状态已更新', 'success'); this.loadManageProducts(); } else this.toastMsg(res.msg || '操作失败', 'error'); },
+        async openEditProduct(prod) { this.editForm = { id: prod.id, name: prod.name, price: prod.price, originalPrice: prod.originalPrice || "", description: prod.description || "", categoryId: prod.categoryId, stock: prod.stock || 0 }; this.showEditProduct = true; this.loadCategoryList(); }, async updateProduct() { if (this.submitting) return; if (!this.editForm.name || !this.editForm.price) return this.toastMsg("请填写商品名称和价格", "error"); if (!this.editForm.categoryId) return this.toastMsg("请选择分类", "error"); this.submitting = true; const res = await this.api("/product/update", { method: "PUT", headers: this.getHeaders(), body: JSON.stringify(this.editForm) }); this.submitting = false; if (res.code === 200) { this.toastMsg("修改成功", "success"); this.showEditProduct = false; this.loadManageProducts(); } else this.toastMsg(res.msg || "修改失败", "error"); }, async toggleProductStatus(prod) { const ns = prod.status === 1 ? 0 : 1; const res = await this.api('/product/updateStatus?id=' + prod.id + '&status=' + ns, { method: 'POST', headers: this.getHeaders() }); if (res.code === 200) { this.toastMsg('状态已更新', 'success'); this.loadManageProducts(); } else this.toastMsg(res.msg || '操作失败', 'error'); },
         async deleteProduct(id) { if (!confirm('确定删除该商品？')) return; const res = await this.api('/product/delete/' + id, { method: 'POST', headers: this.getHeaders() }); if (res.code === 200) { this.toastMsg('删除成功', 'success'); this.loadManageProducts(); } else this.toastMsg(res.msg || '删除失败', 'error'); },
-        async addToCart(prod) { const res = await this.api('/cart/add', { method: 'POST', headers: this.getHeaders(), body: JSON.stringify({ merchantId: this.currentShopId, productId: prod.id, quantity: 1 }) }); if (res.code === 200) { this.toastMsg('已加入购物车', 'success'); this.loadCart(); } else this.toastMsg(res.msg || '添加失败', 'error'); },
+        async addToCart(prod) { if (prod.stock !== undefined && prod.stock <= 0) return this.toastMsg('该商品已售罄', 'error'); const res = await this.api('/cart/add', { method: 'POST', headers: this.getHeaders(), body: JSON.stringify({ merchantId: this.currentShopId, productId: prod.id, quantity: 1 }) }); if (res.code === 200) { this.toastMsg('已加入购物车', 'success'); this.loadCart(); } else if (res.code === 401) { this.toastMsg('请先登录', 'error'); this.page = 'home'; } else this.toastMsg(res.msg || '添加失败', 'error'); },
         async loadCart() { if (!this.currentShopId) return; const res = await this.api('/cart/list/' + this.currentShopId, { headers: this.getHeaders() }); if (res.code === 200) this.cartList = res.data || []; },
         async removeCart(id) { const res = await this.api('/cart/delete/' + id, { method: 'POST', headers: this.getHeaders() }); if (res.code === 200) { this.toastMsg('已删除', 'success'); this.loadCart(); } else this.toastMsg(res.msg || '删除失败', 'error'); },
         async submitOrder() {
@@ -421,7 +468,7 @@ createApp({
             else this.toastMsg('下单成功！订单号: ' + orderId, 'success');
             this.cartList = []; this.showCart = false; this.page = 'myorder'; this.loadMyOrders();
         },
-        async loadMyOrders() { this.orderLoading = true; const res = await this.api('/order/myOrders', { headers: this.getHeaders() }); this.orderLoading = false; if (res.code === 200) this.orderList = res.data || []; else this.orderList = []; },
+        async loadMyOrders() { this.orderLoading = true; const res = await this.api('/order/myOrders', { headers: this.getHeaders() }); if (res.code === 200) { this.orderList = res.data || []; this.reviewedOrderIds = []; for (const o of this.orderList) { if (o.status === 4) { const r = await this.api('/review/order/' + o.id); if (r.code === 200 && r.data && r.data.length > 0) this.reviewedOrderIds.push(o.id); } } } this.orderLoading = false; },
         async loadMerchantOrders() { const res = await this.api('/order/merchantOrders', { headers: this.getHeaders() }); if (res.code === 200) this.orderList = res.data || []; },
         async viewOrderDetail(order) { this.detailOrder = order; const res = await this.api('/orderItem/list/' + order.id); if (res.code === 200) this.orderItems = res.data || []; else this.orderItems = []; this.showOrderDetail = true; },
         async acceptOrder(orderId) { const res = await this.api('/order/updateStatus?id=' + orderId + '&status=2', { method: 'POST' }); if (res.code === 200) { this.toastMsg('已接单', 'success'); this.loadMerchantOrders(); } else this.toastMsg(res.msg || '操作失败', 'error'); },
@@ -445,7 +492,7 @@ createApp({
             this.submitting = true;
             const res = await this.api('/merchant/create', { method: 'POST', headers: this.getHeaders(), body: JSON.stringify(this.merchantForm) });
             this.submitting = false;
-            if (res.code === 200) { this.toastMsg('入驻成功！即将跳转商家后台', 'success'); this.userInfo.role = 1; this.role = 1; localStorage.setItem('userInfo', JSON.stringify(this.userInfo)); this.page = 'merchantHome'; this.loadMerchantInfo(); }
+            if (res.code === 200) { this.toastMsg('入驻成功！请重新登录以激活商家身份', 'success'); localStorage.clear(); this.userInfo = null; this.role = -1; this.page = 'home'; }
             else this.toastMsg(res.msg || '入驻失败', 'error');
         },
         async updateMerchant() {
@@ -454,14 +501,14 @@ createApp({
             if (res.code === 200) { this.toastMsg('保存成功', 'success'); this.loadMerchantInfo(); } else this.toastMsg(res.msg || '保存失败', 'error');
         },
         async updateMerchantStatus(status) { const res = await this.api('/merchant/updateStatus?status=' + status, { method: 'POST', headers: this.getHeaders() }); if (res.code === 200) { this.toastMsg('状态已更新', 'success'); this.loadMerchantInfo(); } else this.toastMsg(res.msg || '更新失败', 'error'); },
-        async loadRiderInfo() { const res = await this.api('/rider/info', { headers: this.getHeaders() }); if (res.code === 200) { this.riderInfo = res.data; this.page = 'pendingOrders'; this.loadWaitOrders(); } else { this.riderInfo = null; this.page = 'riderApply'; } },
+        async loadRiderInfo() { const res = await this.api('/rider/info', { headers: this.getHeaders() }); if (res.code === 200) { this.riderInfo = res.data; this.loadRiderOrders(); } else { this.riderInfo = null; } },
         async applyRider() {
             if (this.submitting) return;
             if (!this.riderForm.idCard) return this.toastMsg('请填写身份证号', 'error');
             this.submitting = true;
             const res = await this.api('/rider/apply', { method: 'POST', headers: this.getHeaders(), body: JSON.stringify(this.riderForm) });
             this.submitting = false;
-            if (res.code === 200) { this.toastMsg('骑手认证成功！即将跳转骑手后台', 'success'); this.userInfo.role = 2; this.role = 2; localStorage.setItem('userInfo', JSON.stringify(this.userInfo)); this.page = 'pendingOrders'; this.loadRiderInfo(); }
+            if (res.code === 200) { this.toastMsg('骑手认证成功！请重新登录以激活骑手身份', 'success'); localStorage.clear(); this.userInfo = null; this.role = -1; this.page = 'home'; }
             else this.toastMsg(res.msg || '认证失败', 'error');
         },
     
@@ -475,7 +522,7 @@ createApp({
             ];
             const res = await this.api("/review/submit?orderId=" + this.reviewOrder.id, { method: "POST", headers: this.getHeaders(), body: JSON.stringify(reviews) });
             this.submitting = false;
-            if (res.code === 200) { this.toastMsg("评价成功", "success"); this.showReview = false; this.loadMyOrders(); this.loadShops(); }
+            if (res.code === 200) { this.toastMsg("评价成功", "success"); this.reviewedOrderIds.push(this.reviewOrder.id); this.showReview = false; this.loadMyOrders(); this.loadShops(); }
             else this.toastMsg(res.msg || "评价失败", "error");
         },
     },

@@ -89,4 +89,8 @@ public class ProductServiceImpl implements ProductService {
     public boolean addSales(Integer id) {
         return productMapper.increaseSales(id) > 0;
     }
+    @Override
+    public boolean updateProduct(Product product) {
+        return productMapper.updateProduct(product) > 0;
+    }
 }

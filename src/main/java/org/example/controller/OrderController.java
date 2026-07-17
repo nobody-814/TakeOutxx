@@ -8,7 +8,6 @@ import org.example.domain.Result;
 import org.example.domain.User;
 import org.example.service.MerchantService;
 import org.example.service.OrderService;
-import org.example.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -23,17 +22,13 @@ public class OrderController {
     private OrderService orderService;
 
     @Resource
-    private UserService userService;
-
-    @Resource
     private MerchantService merchantService;
 
     @PostMapping("/create")
     public Result create(@RequestBody Order order) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         order.setUserId(user.getId());
-        order.setId("ORD" + System.currentTimeMillis());
+        order.setId("ORD" + System.currentTimeMillis() + "_" + java.util.UUID.randomUUID().toString().substring(0, 8));
         order.setStatus(0);
         orderService.createOrder(order);
         return Result.success(order.getId(), "订单创建成功");
@@ -48,7 +43,6 @@ public class OrderController {
     @GetMapping("/myOrders")
     public Result myOrders(@RequestParam(required = false) Integer status) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("未登录");
         if (status != null) {
             return Result.success(orderService.getMyOrders(user.getId(), status));
         }
@@ -58,7 +52,6 @@ public class OrderController {
     @GetMapping("/merchantOrders")
     public Result merchantOrders(@RequestParam(required = false) Integer status) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("未登录");
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
         if (merchant == null) return Result.error("未开通店铺");
         if (status != null) {
@@ -70,7 +63,6 @@ public class OrderController {
     @GetMapping("/merchant/stats")
     public Result merchantStats() {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
         if (merchant == null) return Result.error("未开通店铺");
         Map<String, Object> stats = new HashMap<>();
@@ -87,7 +79,6 @@ public class OrderController {
     @PostMapping("/rider/take")
     public Result takeOrder(@RequestParam String orderId) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         orderService.riderTakeOrder(orderId, user.getId());
         return Result.success("接单成功");
     }
@@ -95,9 +86,9 @@ public class OrderController {
     @PostMapping("/pay/{id}")
     public Result payOrder(@PathVariable String id) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         Order order = orderService.getOrderById(id);
         if (order == null) return Result.error("订单不存在");
+        if (!order.getUserId().equals(user.getId())) return Result.error("无权操作他人订单");
         if (order.getStatus() != 0) return Result.error("订单状态异常");
         orderService.payOrder(id);
         return Result.success("支付成功");
@@ -105,18 +96,21 @@ public class OrderController {
 
     @PostMapping("/updateStatus")
     public Result updateStatus(@RequestParam String id, @RequestParam Integer status) {
-        orderService.updateOrderStatus(id, status);
-        return Result.success("状态已更新");
+        try {
+            orderService.updateOrderStatus(id, status);
+            return Result.success("状态已更新");
+        } catch (RuntimeException e) {
+            return Result.error(e.getMessage());
+        }
     }
 
     @PostMapping("/cancel/{id}")
     public Result cancelOrder(@PathVariable String id) {
         User user = SecurityUtil.getCurrentUser();
-        if (user == null) return Result.error("请先登录");
         Order order = orderService.getOrderById(id);
         if (order == null) return Result.error("订单不存在");
         if (!order.getUserId().equals(user.getId())) return Result.error("无权取消他人订单");
-        if (order.getStatus() >= 4 || order.getStatus() == 5) return Result.error("当前订单状态不可取消");
+        if (order.getStatus() >= 4 || order.getStatus() == 5) return Result.error("当前状态不可取消，仅待支付或待接单的订单可取消");
         boolean success = orderService.cancelOrder(id);
         return success ? Result.success("订单已取消") : Result.error("取消失败");
     }

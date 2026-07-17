@@ -1,2 +1,0 @@
-            <div class='form-group'><label class='form-label'>商家评分</label><div><span v-for='s in 5' :key=''ms''+s style='font-size:24px;cursor:pointer' @click='reviewForm.merchantRating=s' v-text='s<=reviewForm.merchantRating?''★'':'☆'''></span></div></div>
-            <div class='form-group'><label class='form-label'>骑手评分</label><div><span v-for='s in 5' :key=''rs''+s style='font-size:24px;cursor:pointer' @click='reviewForm.riderRating=s' v-text='s<=reviewForm.riderRating?''★'':'☆'''></span></div></div>

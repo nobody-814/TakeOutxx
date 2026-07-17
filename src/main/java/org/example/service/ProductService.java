@@ -12,4 +12,5 @@ public interface ProductService {
     boolean updateStatus(Integer id, Integer status);
     boolean deleteProduct(Integer id);
     boolean addSales(Integer id);
+    boolean updateProduct(Product product);
 }
