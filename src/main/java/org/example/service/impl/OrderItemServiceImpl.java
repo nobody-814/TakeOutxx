@@ -35,7 +35,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         // 先扣库存，带行锁防止超卖
         int decreased = productMapper.decreaseStock(productId, qty);
         if (decreased <= 0) {
-            throw new RuntimeException("库存不足");
+            return 0;
         }
 
         // 加销量

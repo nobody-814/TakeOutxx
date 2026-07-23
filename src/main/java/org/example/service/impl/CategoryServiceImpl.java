@@ -33,7 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
     public int addCategory(Category category) {
         int count = categoryMapper.countByMerchantAndName(category.getMerchantId(), category.getName());
         if (count > 0) {
-            throw new RuntimeException("该分类名称已存在");
+            return -1;
         }
         int result = categoryMapper.insert(category);
         redisTemplate.delete(CATEGORY_LIST_KEY + category.getMerchantId());

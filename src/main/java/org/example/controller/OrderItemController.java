@@ -16,14 +16,16 @@ public class OrderItemController {
     @Autowired
     private OrderItemService orderItemService;
 
-    // 添加订单项
     @PostMapping("/add")
     public Result add(@RequestBody OrderItem orderItem) {
-        orderItemService.addOrderItem(orderItem);
-        return Result.success("订单项添加成功");
+        int result = orderItemService.addOrderItem(orderItem);
+        if (result > 0) {
+            return Result.success("订单项添加成功");
+        } else {
+            return Result.error("库存不足");
+        }
     }
 
-    // 根据订单号查询所有商品
     @GetMapping("/list/{orderId}")
     public Result getItems(@PathVariable String orderId) {
         List<OrderItem> list = orderItemService.getItemsByOrderId(orderId);

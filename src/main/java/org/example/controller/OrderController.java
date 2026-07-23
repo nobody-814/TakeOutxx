@@ -79,8 +79,8 @@ public class OrderController {
     @PostMapping("/rider/take")
     public Result takeOrder(@RequestParam String orderId) {
         User user = SecurityUtil.getCurrentUser();
-        orderService.riderTakeOrder(orderId, user.getId());
-        return Result.success("接单成功");
+        boolean success = orderService.riderTakeOrder(orderId, user.getId());
+        return success ? Result.success("接单成功") : Result.error("该订单已被其他骑手抢走");
     }
 
     @PostMapping("/pay/{id}")
@@ -90,8 +90,8 @@ public class OrderController {
         if (order == null) return Result.error("订单不存在");
         if (!order.getUserId().equals(user.getId())) return Result.error("无权操作他人订单");
         if (order.getStatus() != 0) return Result.error("订单状态异常");
-        orderService.payOrder(id);
-        return Result.success("支付成功");
+        boolean paid = orderService.payOrder(id);
+        return paid ? Result.success("支付成功") : Result.error("订单状态异常，无法支付");
     }
 
     @PostMapping("/updateStatus")

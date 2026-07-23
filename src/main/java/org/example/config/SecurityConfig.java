@@ -1,5 +1,6 @@
-package org.example.config;
+﻿package org.example.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,6 +23,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
 
+    @Autowired
     public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
@@ -53,7 +55,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/takeout/order/rider/wait").permitAll()
                         .requestMatchers(HttpMethod.GET, "/takeout/rider/online/list").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // everything else requires authentication
+                        // role-based access control
+                        .requestMatchers("/takeout/merchant/**").hasRole("MERCHANT")
+                        .requestMatchers("/takeout/product/**").hasRole("MERCHANT")
+                        .requestMatchers("/takeout/category/**").hasRole("MERCHANT")
+                        .requestMatchers("/takeout/cart/**").hasRole("USER")
+                        .requestMatchers("/takeout/rider/**").hasRole("RIDER")
+                        // everything else requires authentication (any role)
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())

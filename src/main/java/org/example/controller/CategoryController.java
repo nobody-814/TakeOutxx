@@ -31,13 +31,13 @@ public class CategoryController {
         category.setMerchantId(merchant.getId());
         if (category.getSort() == null) category.setSort(0);
         category.setId(null);
-        try {
-            categoryService.addCategory(category);
+        int result = categoryService.addCategory(category);
+        if (result > 0) {
             return Result.success("添加成功");
-        } catch (RuntimeException e) {
-            return Result.error(e.getMessage());
-        } catch (Exception e) {
-            return Result.error("添加失败: " + e.getMessage());
+        } else if (result == -1) {
+            return Result.error("该分类名称已存在");
+        } else {
+            return Result.error("添加失败");
         }
     }
 
@@ -52,9 +52,9 @@ public class CategoryController {
         Merchant merchant = merchantService.getMerchantByUserId(user.getId().longValue());
         if (merchant == null) return Result.error("当前账号不是商家");
 
-        Category category = categoryService.getById(id);
-        if (category == null) return Result.error("分类不存在");
-        if (!category.getMerchantId().equals(merchant.getId()))
+        Category cate = categoryService.getById(id);
+        if (cate == null) return Result.error("分类不存在");
+        if (!cate.getMerchantId().equals(merchant.getId()))
             return Result.error("无权删除其他商家的分类");
 
         int deleted = categoryService.deleteCategory(id, merchant.getId());

@@ -62,7 +62,7 @@ public class RiderController {
             riderService.changeStatus(rider.getId(), 2);
             return Result.success("接单成功，请尽快取餐");
         }
-        return Result.error("接单失败，订单状态异常");
+        return Result.error("该订单已被其他骑手抢走");
     }
 
     @GetMapping("/orders/current")
@@ -81,8 +81,8 @@ public class RiderController {
         Order order = orderService.getOrderById(orderId);
         if (order == null || !order.getRiderId().equals(rider.getId()))
             return Result.error("无权操作此订单");
-        orderService.completeOrder(orderId);
-        return Result.success("配送完成");
+        boolean done = orderService.completeOrder(orderId);
+        return done ? Result.success("配送完成") : Result.error("订单状态异常，无法完成");
     }
 
     @GetMapping("/orders")
